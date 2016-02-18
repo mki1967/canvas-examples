@@ -21,7 +21,7 @@ var funcTab=[
     function(x,y){ return(sin(Pi*x)*sin(Pi*y)); },
     function(x,y){ return(cos(Pi*x)*cos(Pi*y)); },
     function(x,y){ return(cos(Pi*x)*sin(Pi*y)); },
-    function(x,y){ return(cos(Pi*x)*y); },
+    function(x,y){ return(cos(2*Pi*x)*cos(2*Pi*y)*0.5); },
     function(x,y){ return(sin(Pi*x)*y); },
     function(x,y){ return(cos(Pi*(x*x+y*y))); },
     function(x,y){ return(sin(Pi*(x*x+y*y))); }, 
