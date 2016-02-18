@@ -4,6 +4,7 @@ var ctx = canvas.getContext("2d");
 var canvas2 = document.getElementById("myCanvas2");
 var ctx2 = canvas2.getContext("2d");
 
+
 var sin=Math.sin;
 var cos=Math.cos;
 var log=Math.log;
@@ -25,12 +26,33 @@ var funcTab=[
     function(x,y){ return(cos(Pi*(x*x+y*y))); },
     function(x,y){ return(sin(Pi*(x*x+y*y))); }, 
     function(x,y){ return(sin(Pi*(x*x+y*y))); },
-    function(x,y){ return(log(x*20+21));  }
 ];
+
+var idxX=document.getElementById("idxX");
+var idxY=document.getElementById("idxY");
+var idxZ=document.getElementById("idxZ");
+
+idxX.value=1;
+idxX.min=0;
+idxX.max= funcTab.length;
+
+idxY.value=5;
+idxY.min=0;
+idxY.max= funcTab.length;
+
+idxZ.value=2;
+idxZ.min=0;
+idxZ.max= funcTab.length;
 
 var fx=funcTab[1];
 var fz=funcTab[2];
 var fy=funcTab[5];
+
+var setFunctions= function(){
+    fx=funcTab[idxX.value];
+    fy=funcTab[idxY.value];
+    fz=funcTab[idxZ.value];
+};
 
 
 var xmin=-1;
@@ -89,8 +111,8 @@ var Xd= 0;
 var Yd= 1;
 var Zd= 2;
 
-var leftEye=[-3.5,0,-50];
-var rightEye=[3.5 ,0,-50];
+var leftEye=[-3.5,0,-40];
+var rightEye=[3.5 ,0,-40];
 
 var screen_z= 0.0;
 
@@ -145,6 +167,51 @@ var redraw= function() {
 }
 
 redraw(); // test
+
+onkeydown=function (e){
+    // var code=e.keyCode? e.keyCode : e.charCode;
+    const rotStep = Math.PI / 36; // 5 degrees 
+    var code= e.which || e.keyCode;
+    switch(code)
+    {
+    case 38: // up
+    case 73: // I
+        BETA-=rotStep;
+	break;
+    case 40: // down
+    case 75: // K
+        BETA+=rotStep;
+	break;
+    case 37: // left
+    case 74:// J
+	ALPHA-=rotStep;
+	break;
+    case 39:// right
+    case 76: // L
+	ALPHA+=rotStep;
+	break;
+    case 70: // F
+	break;
+    case 66: // B
+    case 86: // V
+	break;
+    case 13: // Enter
+	setFunctions();
+	break;
+    case 32: // Space
+	ALPHA=0;
+	BETA=0;
+	break;
+    case 9: // Tab
+    case 69: // E
+	var tmp=  rightColor;
+	rightColor=leftColor;
+        leftColor=tmp;
+	break;
+
+    };
+    redraw();
+};
 
 //////////////////////////////////////////////
 
