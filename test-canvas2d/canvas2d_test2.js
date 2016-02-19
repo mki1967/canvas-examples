@@ -34,23 +34,10 @@ var idxX=document.getElementById("idxX");
 var idxY=document.getElementById("idxY");
 var idxZ=document.getElementById("idxZ");
 
-idxX.value=1;
-idxX.min=0;
-idxX.max= funcTab.length-1;
-
-idxY.value=5;
-idxY.min=0;
-idxY.max= funcTab.length-1;
-
-idxZ.value=2;
-idxZ.min=0;
-idxZ.max= funcTab.length-1;
 
 var fx=funcTab[1];
 var fz=funcTab[2];
 var fy=funcTab[5];
-var fyString="cos(Pi*x)*cos(Pi*y)";
-// var fy=function(x,y) {return eval(fyString);};
 
 var setFunctions= function(){
     fx=funcTab[idxX.value];
@@ -67,11 +54,6 @@ var ymax= 1;
 var ALPHA =(Pi/6);
 var BETA = (Pi/4);
 var rotstep = (Pi/12);
-
-var scalex= 5;
-var scaley= 5;
-var scalez= 5;
-// var sc_coefficient= (4.0/5.0);
 
 
 var perspective= function(eyex, eyez, screen_z, x,z)
@@ -115,21 +97,24 @@ var Xd= 0;
 var Yd= 1;
 var Zd= 2;
 
-var leftEye=[-3.5,0,40];
-var rightEye=[3.5 ,0,40];
+var eyeDistance=7;
+
+var leftEye=[-eyeDistance/2, 0, 40];
+var rightEye=[eyeDistance/2, 0, 40];
 
 var screen_z= 0.0;
 
 var rightColor="rgb(0,0,255)";
 var leftColor ="rgb(127,0,0)";
+    
+var stepX=0.04;
+var stepY=0.04;
 
 
 var draw=function(ctx, colorString, eye)
 { 
     var x,y;
     var ffx, ffy, ffz, fffx, fffy, fffz;
-    var stepX=0.02;
-    var stepY=0.02;
     ctx.fillStyle =colorString;
 
     for(x=xmin; x<xmax; x+=stepX)
@@ -170,13 +155,9 @@ var redraw= function() {
     ctx.drawImage(ctx2.canvas, 0,0);
 }
 
-redraw(); // test
 
 var keyDownCallback=function (e){
-    e.preventDefault()
-    onkeydown=function(evnt){ evnt.preventDefault() }; // ignore next keydown events for a while ...
-    // onkeydown=null;
-    // var code=e.keyCode? e.keyCode : e.charCode;
+    e.preventDefault(); // prevents browser from interpreting the keys for other tasks
     const rotStep = Math.PI / 36; // 5 degrees 
     var code= e.which || e.keyCode;
     switch(code)
@@ -197,11 +178,23 @@ var keyDownCallback=function (e){
     case 76: // L
 	ALPHA+=rotStep;
 	break;
-    case 70: // F
-	break;
-    case 66: // B
     case 86: // V
+	if( stepX >= 0.04 ) {
+	    stepX=stepY=0.02
+	} else {
+	    stepX=stepY=0.04
+	}
 	break;
+
+    case 77: // M
+	if( leftEye[0] == 0) {
+	    leftEye[0] = -eyeDistance/2;
+	    rightEye[0] = eyeDistance/2;
+	} else {
+	    leftEye[0] = rightEye[0] = 0;
+	}
+	break;
+
     case 13: // Enter
 	setFunctions();
 	break;
@@ -221,45 +214,20 @@ var keyDownCallback=function (e){
     onkeydown=keyDownCallback; // ready to receive next keydown events
 };
 
+idxX.value=1;
+idxX.min=0;
+idxX.max= funcTab.length-1;
+
+idxY.value=5;
+idxY.min=0;
+idxY.max= funcTab.length-1;
+
+idxZ.value=2;
+idxZ.min=0;
+idxZ.max= funcTab.length-1;
+
+setFunctions();
+
+redraw(); // initial redraw
 onkeydown=keyDownCallback; // set initial callback
 
-//////////////////////////////////////////////
-
-
-/*
-
-var red= function(x,y) {
-    return Math.sin(x)*Math.sin(y);
-}
-
-
-var green= function(x,y) {
-    return Math.sin(x)*Math.sin(y);
-}
-
-var blue= function(x,y) {
-    return -Math.sin(x)*Math.sin(y);
-}
-
-var redRange=[-1,1];
-var greenRange=[-1,1];
-var blueRange=[-1,1];
-
-var x,y, rx, ry, zRed, zGreen, zBlue;
-var xRange=[-2*Math.PI,2*Math.PI];
-var yRange=[-2*Math.PI,2*Math.PI];
-var xStep= (xRange[1]-xRange[0])/ctx.canvas.width;
-var yStep= (yRange[1]-yRange[0])/ctx.canvas.height;
-for( x=0; x<ctx.canvas.width; x++)
-    for( y=0; y<ctx.canvas.height; y++) {
-	rx= xRange[0]+x*xStep;
-	ry= yRange[0]+y*yStep;
-	zRed= Math.floor(255*(red(rx,ry)-redRange[0])/(redRange[1]-redRange[0]));
-	zGreen= Math.floor(255*(green(rx,ry)-greenRange[0])/(greenRange[1]-greenRange[0]));
-	zBlue= Math.floor(255*(blue(rx,ry)-blueRange[0])/(blueRange[1]-blueRange[0]));
-	ctx.fillStyle = "rgb("+zRed+","+zGreen+","+zBlue+")";
-
-	ctx.fillRect(x,y,1,1);
-    }
-console.log(ctx);
-*/
