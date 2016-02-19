@@ -28,25 +28,29 @@ var funcTab=[
     function(x,y){ return(sin(Pi*(x*x+y*y))); },
 ];
 
+// document.getElementById("demo").innerHTML = JSON.stringify(funcTab);
+
 var idxX=document.getElementById("idxX");
 var idxY=document.getElementById("idxY");
 var idxZ=document.getElementById("idxZ");
 
 idxX.value=1;
 idxX.min=0;
-idxX.max= funcTab.length;
+idxX.max= funcTab.length-1;
 
 idxY.value=5;
 idxY.min=0;
-idxY.max= funcTab.length;
+idxY.max= funcTab.length-1;
 
 idxZ.value=2;
 idxZ.min=0;
-idxZ.max= funcTab.length;
+idxZ.max= funcTab.length-1;
 
 var fx=funcTab[1];
 var fz=funcTab[2];
 var fy=funcTab[5];
+var fyString="cos(Pi*x)*cos(Pi*y)";
+// var fy=function(x,y) {return eval(fyString);};
 
 var setFunctions= function(){
     fx=funcTab[idxX.value];
@@ -111,8 +115,8 @@ var Xd= 0;
 var Yd= 1;
 var Zd= 2;
 
-var leftEye=[-3.5,0,-40];
-var rightEye=[3.5 ,0,-40];
+var leftEye=[-3.5,0,40];
+var rightEye=[3.5 ,0,40];
 
 var screen_z= 0.0;
 
@@ -168,7 +172,10 @@ var redraw= function() {
 
 redraw(); // test
 
-onkeydown=function (e){
+var keyDownCallback=function (e){
+    e.preventDefault()
+    onkeydown=function(evnt){ evnt.preventDefault() }; // ignore next keydown events for a while ...
+    // onkeydown=null;
     // var code=e.keyCode? e.keyCode : e.charCode;
     const rotStep = Math.PI / 36; // 5 degrees 
     var code= e.which || e.keyCode;
@@ -211,7 +218,10 @@ onkeydown=function (e){
 
     };
     redraw();
+    onkeydown=keyDownCallback; // ready to receive next keydown events
 };
+
+onkeydown=keyDownCallback; // set initial callback
 
 //////////////////////////////////////////////
 

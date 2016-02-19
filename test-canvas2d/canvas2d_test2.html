@@ -9,6 +9,7 @@
       Your browser does not support the canvas element.
     </canvas>
     <div id="divInputs" display="none">
+      <p> Select options and press 'Enter': </p>
       <ul>
 	<li>idx X: <input id="idxX" type="number"></li>
 	<li>idx Y: <input id="idxY" type="number"></li>
@@ -16,6 +17,25 @@
       </ul>
     </div>
 
+
+<form>
+  <select id="mySelect" onchange="myFunction()">
+    <option>Apple</option>
+    <option>Orange</option>
+    <option>Pineapple</option>
+    <option>Banana</option>
+  </select>
+</form>
+
+<p id="demo"></p>
+
+<script>
+function myFunction() {
+    var x = document.getElementById("mySelect");
+    var i = x.selectedIndex;
+    document.getElementById("demo").innerHTML = x.options[i].text;
+}
+</script>
     <script src="canvas2d_test2.js">
     </script>
 
