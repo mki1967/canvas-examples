@@ -4,13 +4,14 @@ var ctx = canvas.getContext("2d");
 var canvas2 = document.getElementById("myCanvas2");
 var ctx2 = canvas2.getContext("2d");
 
+var idxX=document.getElementById("idxX");
+var idxY=document.getElementById("idxY");
+var idxZ=document.getElementById("idxZ");
 
 var sin=Math.sin;
 var cos=Math.cos;
 var log=Math.log;
 var Pi=Math.PI;
-
-
 
 var funcTab=[
     function(x,y){ return(0);},
@@ -28,16 +29,7 @@ var funcTab=[
     function(x,y){ return(sin(Pi*(x*x+y*y))); },
 ];
 
-// document.getElementById("demo").innerHTML = JSON.stringify(funcTab);
-
-var idxX=document.getElementById("idxX");
-var idxY=document.getElementById("idxY");
-var idxZ=document.getElementById("idxZ");
-
-
-var fx=funcTab[1];
-var fz=funcTab[2];
-var fy=funcTab[5];
+var fx, fy, fz; // functions: R x R -> R
 
 var setFunctions= function(){
     fx=funcTab[idxX.value];
@@ -46,20 +38,17 @@ var setFunctions= function(){
 };
 
 
-var xmin=-1;
-var xmax= 1;
-var ymin=-1;
-var ymax= 1;
 
-var ALPHA =(Pi/6);
-var BETA = (Pi/4);
-var rotstep = (Pi/12);
 
+// perspective with eyex shift for stereoscopy 
 
 var perspective= function(eyex, eyez, screen_z, x,z)
 {
     return( eyex+(screen_z-eyez)*(x-eyex)/(z-eyez) );
 }
+
+
+// (x,y) rotated by angle is ( xrotate(x,y, angle), yrotate(x,y, angle) )
 
 var xrotate= function (x,y, angle)
 {
@@ -71,13 +60,16 @@ var yrotate= function (x,y, angle)
     return(y*cos(angle)+x*sin(angle));
 }
 
-var rpixel=0.005;
-var rminx=-rpixel*ctx.canvas.width/2;
+// screen parameters: screen displays the rectangle [rminx,rmaxx] x [rminy,rmaxy] of R x R
+var rpixel=0.005; // size of pixel
+var rminx=-rpixel*ctx.canvas.width/2; 
 var rmaxx= rpixel*ctx.canvas.width/2;
 var rminy=-rpixel*ctx.canvas.height/2;
 var rmaxy= rpixel*ctx.canvas.height/2;
 
 
+// (rx(ctx,x), ry(ctx,y)) is the pixel corresponding to (x,y) on ctx.canvas
+ 
 var rx= function (ctx, x )
 {
     return (x-rminx)/(rmaxx-rminx)*(ctx.canvas.width);
@@ -88,17 +80,20 @@ var ry= function (ctx, y )
     return ctx.canvas.height-(y-rminy)/(rmaxy-rminy)*(ctx.canvas.height);
 }
 
+
+// draw single pixel as a very little rectangle ;-)
+
 var rputpixel= function(ctx, x,y)
 {
     if(rminx<=x && x<rmaxx && rminy<=y && y<rmaxy) ctx.fillRect(rx(ctx,x),ry(ctx,y),1,1);
 }
 
-var Xd= 0;
-var Yd= 1;
-var Zd= 2;
 
+
+var Xd= 0, Yd= 1, Zd= 2; // dimmensions
+
+// parameters for stereoscopy
 var eyeDistance=7;
-
 var leftEye=[-eyeDistance/2, 0, 40];
 var rightEye=[eyeDistance/2, 0, 40];
 
@@ -106,10 +101,30 @@ var screen_z= 0.0;
 
 var rightColor="rgb(0,0,255)";
 var leftColor ="rgb(127,0,0)";
-    
+
+
+// we are drawing image of a function f: [xmin,xmax] x [ymin,ymax] -> R x R x R,
+// where f(x,y)= ( fx(x,y), fy(x,y), fz(x,y) )
+
+var xmin=-1;
+var xmax= 1;
+var ymin=-1;
+var ymax= 1;
+
+
+// the image of the function is rotated horizontaly by ALPHA and verticaly by BETA  
+
+var ALPHA =(Pi/6);
+var BETA = -(Pi/6);
+
+
+// precision of the graph 
+
 var stepX=0.04;
 var stepY=0.04;
 
+
+// drawing perspective for one eye
 
 var draw=function(ctx, colorString, eye)
 { 
@@ -164,19 +179,19 @@ var keyDownCallback=function (e){
     {
     case 38: // up
     case 73: // I
-        BETA-=rotStep;
+        BETA+=rotStep;
 	break;
     case 40: // down
     case 75: // K
-        BETA+=rotStep;
+        BETA-=rotStep;
 	break;
     case 37: // left
     case 74:// J
-	ALPHA-=rotStep;
+	ALPHA+=rotStep;
 	break;
     case 39:// right
     case 76: // L
-	ALPHA+=rotStep;
+	ALPHA-=rotStep;
 	break;
     case 86: // V
 	if( stepX >= 0.04 ) {
@@ -214,20 +229,22 @@ var keyDownCallback=function (e){
     onkeydown=keyDownCallback; // ready to receive next keydown events
 };
 
-idxX.value=1;
-idxX.min=0;
-idxX.max= funcTab.length-1;
 
-idxY.value=5;
-idxY.min=0;
-idxY.max= funcTab.length-1;
+onload= function(){
+    idxX.value=1;
+    idxX.min=0;
+    idxX.max= funcTab.length-1;
 
-idxZ.value=2;
-idxZ.min=0;
-idxZ.max= funcTab.length-1;
+    idxY.value=5;
+    idxY.min=0;
+    idxY.max= funcTab.length-1;
 
-setFunctions();
+    idxZ.value=2;
+    idxZ.min=0;
+    idxZ.max= funcTab.length-1;
 
-redraw(); // initial redraw
-onkeydown=keyDownCallback; // set initial callback
+    setFunctions();
 
+    redraw(); // initial redraw
+    onkeydown=keyDownCallback; // set initial callback
+}
