@@ -226,7 +226,6 @@ var keyDownCallback=function (e){
 
     };
     redraw();
-    onkeydown=keyDownCallback; // ready to receive next keydown events
 };
 
 
