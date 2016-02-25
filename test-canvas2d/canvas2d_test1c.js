@@ -95,7 +95,6 @@ var ry= function (ctx, y ){
 var rDrawSegment= function(ctx, x1, y1, x2, y2 ) {
     ctx.moveTo( rx(ctx, x1), ry(ctx, y1) );
     ctx.lineTo( rx(ctx, x2), ry(ctx, y2) );
-    // ctx.stroke(); // przeniesione do redraw() 
 }
 
 // background
