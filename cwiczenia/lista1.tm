@@ -14,7 +14,7 @@
     i dla danego prostok¡ta <math|P=<around*|[|x<rsub|min>,x<rsub|max>|]>\<times\><around*|[|y<rsub|min>,y<rsub|max>|]>>,
     wyznacza odcinek <math|S<rprime|'>=<around*|[|<around*|(|x<rprime|'><rsub|1>,y<rprime|'><rsub|1>|)>,<around*|(|x<rprime|'><rsub|2>,y<rprime|'><rsub|2>|)>|]>=S\<cap\>P>.
 
-    <item>(4p.) Napisz procedur¦, która dla danego odcinka
+    <item>(3p.) Napisz procedur¦, która dla danego odcinka
     <math|S=<around*|[|<around*|(|x<rsub|1>,y<rsub|1>|)>,<around*|(|x<rsub|2>,y<rsub|2>|)>|]>>
     i dla danej póªpªaszczyzny <math|H=<around*|{|<around*|(|
     x,y|)>\<in\>\<bbb-R\><rsup|2><space|0.6spc>:<space|0.6spc>a x+b
@@ -41,7 +41,7 @@
     <math|<around*|[|<tabular*|<tformat|<table|<row|<cell|x<rprime|''>>>|<row|<cell|y<rprime|''>>>>>>|]>=
     M <around*|[|<tabular*|<tformat|<table|<row|<cell|x<rprime|'>>>|<row|<cell|y<rprime|'>>>>>>|]>>?
 
-    <item>(4p.) Wyznacz punkt <math|<around*|(|x<rprime|''>,y<rprime|''>|)>>,
+    <item>(3p.) Wyznacz punkt <math|<around*|(|x<rprime|''>,y<rprime|''>|)>>,
     b¦d¡cy obrotem punktu <math|<around*|(|x<rprime|'>,y<rprime|'>|)>> wokóª
     punktu <math|<around*|(|x<rsub|0>,y<rsub|0>|)>> o k¡t <math|\<alpha\>>.
     Czy przeksztaªcenie da si¦ zapisa¢ w postaci macierzy <math|2\<times\>2>
@@ -52,12 +52,12 @@
     s¡ równolegªe? Kiedy <math|P<rsub|1>=P<rsub|2>>? Kiedy <math|P<rsub|1>> i
     <math|P<rsub|2>> s¡ prostopadªe?
 
-    <item>(4p.) Wyznacz równanie prostej przechodz¡cej przez
+    <item>(3p.) Wyznacz równanie prostej przechodz¡cej przez
     <math|A=<around*|(|x<rprime|'>,y<rprime|'>|)>>, prostopadªej do prostej
     <math|P=<around*|{|<around*|(|x,y|)>\<in\>\<bbb-R\><rsup|2><space|0.6spc>:<space|0.6spc>a
     x+b x+c=0|}>>?
 
-    <item>(4p.) Jaka jest odlegªo±¢ punktu
+    <item>(3p.) Jaka jest odlegªo±¢ punktu
     <math|A=<around*|(|x<rprime|'>,y<rprime|'>|)>> od prostej
     <math|P=<around*|{|<around*|(|x,y|)>\<in\>\<bbb-R\><rsup|2><space|0.6spc>:<space|0.6spc>a
     x+b x+c=0|}>>?
