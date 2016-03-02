@@ -9,7 +9,7 @@
   -- zbiór liczb caªkowitych.
 
   <\enumerate-numeric>
-    <item>(3p.) Napisz procedur¦, która dla danego odcinka
+    <item>(5p.) Napisz procedur¦, która dla danego odcinka
     <math|S=<around*|[|<around*|(|x<rsub|1>,y<rsub|1>|)>,<around*|(|x<rsub|2>,y<rsub|2>|)>|]>>
     i dla danego prostok¡ta <math|P=<around*|[|x<rsub|min>,x<rsub|max>|]>\<times\><around*|[|y<rsub|min>,y<rsub|max>|]>>,
     wyznacza odcinek <math|S<rprime|'>=<around*|[|<around*|(|x<rprime|'><rsub|1>,y<rprime|'><rsub|1>|)>,<around*|(|x<rprime|'><rsub|2>,y<rprime|'><rsub|2>|)>|]>=S\<cap\>P>.
@@ -32,7 +32,7 @@
     zawieraj¡c¡ dwa ró»ne punkty <math|A=<around*|(|x<rprime|'>,y<rprime|'>,z<rprime|'>|)>>
     i <math|B=<around*|(|x<rprime|''>,y<rprime|''>,z<rprime|''>|)>>. W jakich
     przypadkach wynik jest poprawnym rzutem perspektywicznym punktu <math|B>
-    na ekran <math|S> dla obserwaora w punkcie <math|A>.
+    na ekran <math|S> dla obserwatora w punkcie <math|A>.
 
     <item>(2p) Wyznacz punkt <math|<around*|(|x<rprime|''>,y<rprime|''>|)>>,
     b¦d¡cy obrotem punktu <math|<around*|(|x<rprime|'>,y<rprime|'>|)>> wokóª
@@ -47,20 +47,20 @@
     Czy przeksztaªcenie da si¦ zapisa¢ w postaci macierzy <math|2\<times\>2>
     jak w poprzednim zadaniu?
 
-    <item>(4p.) Kiedy dwie proste <math|P<rsub|1>=<around*|{|<around*|(|x,y|)>\<in\>\<bbb-R\><rsup|2><space|0.6spc>:<space|0.6spc>a<rprime|'>x+b<rprime|'>x+c<rprime|'>=0|}>>
-    oraz <math|P<rsub|2>=<around*|{|<around*|(|x,y|)>\<in\>\<bbb-R\><rsup|2><space|0.6spc>:<space|0.6spc>a<rprime|''>x+b<rprime|''>x+c<rprime|''>=0|}>>
+    <item>(4p.) Kiedy dwie proste <math|P<rsub|1>=<around*|{|<around*|(|x,y|)>\<in\>\<bbb-R\><rsup|2><space|0.6spc>:<space|0.6spc>a<rprime|'>x+b<rprime|'>y+c<rprime|'>=0|}>>
+    oraz <math|P<rsub|2>=<around*|{|<around*|(|x,y|)>\<in\>\<bbb-R\><rsup|2><space|0.6spc>:<space|0.6spc>a<rprime|''>x+b<rprime|''>y+c<rprime|''>=0|}>>
     s¡ równolegªe? Kiedy <math|P<rsub|1>=P<rsub|2>>? Kiedy <math|P<rsub|1>> i
     <math|P<rsub|2>> s¡ prostopadªe?
 
     <item>(3p.) Wyznacz równanie prostej przechodz¡cej przez
     <math|A=<around*|(|x<rprime|'>,y<rprime|'>|)>>, prostopadªej do prostej
     <math|P=<around*|{|<around*|(|x,y|)>\<in\>\<bbb-R\><rsup|2><space|0.6spc>:<space|0.6spc>a
-    x+b x+c=0|}>>?
+    x+b y+c=0|}>>?
 
     <item>(3p.) Jaka jest odlegªo±¢ punktu
     <math|A=<around*|(|x<rprime|'>,y<rprime|'>|)>> od prostej
     <math|P=<around*|{|<around*|(|x,y|)>\<in\>\<bbb-R\><rsup|2><space|0.6spc>:<space|0.6spc>a
-    x+b x+c=0|}>>?
+    x+b y+c=0|}>>?
   </enumerate-numeric>
 </body>
 
