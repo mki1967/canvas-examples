@@ -12,14 +12,18 @@
     </div>
 
     <script>
-      var vertexShader= ""+
-      "attribute vec4 aVertexPosition; \n"
+      var vertexShaderSrc= ""+
+      "attribute vec4 aVertexPosition; \n"+
       "void main( void ) { \n"+
-      "  gl_PointSize=2; \n"+
+      "  gl_PointSize=5.0; \n"+
       "  gl_Position= aVertexPosition; \n"+
       "} \n";
 
-
+      var fragmentShaderSrc= ""+
+      "precision mediump float; \n"+
+      "void main( void ) { \n"+
+      "  gl_FragColor = vec4(1.0,1.0,1.0,1.0); \n"+
+      "} \n";
     </script>
 
     <script>
@@ -29,6 +33,8 @@
       window.onload= function(){
       mki3d.html.initObjects();
       mki3d.gl.initGL( mki3d.html.canvas );
+      var shaderProgram=compileAndLinkShaderProgram( mki3d.gl.context, vertexShaderSrc, fragmentShaderSrc );
+      mki3d.gl.context.useProgram(shaderProgram);
       window.onresize= mki3d.callback.onWindowResize;
       mki3d.html.button1.onclick = mki3d.callback.onButton1;
       mki3d.callback.onWindowResize(); 
@@ -43,6 +49,38 @@
       mki3d.gl.context = gl;
       };
 
+      compileAndLinkShaderProgram=function ( gl, vertexShaderSource, fragmentShaderSource ){
+      var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+      gl.shaderSource(vertexShader, vertexShaderSource);
+      gl.compileShader(vertexShader);
+      if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+      console.log(gl.getShaderInfoLog(vertexShader));
+      console.log(gl);
+      return null;
+      }
+
+      var fragmentShader =gl.createShader(gl.FRAGMENT_SHADER);
+      gl.shaderSource(fragmentShader, fragmentShaderSource);
+      gl.compileShader(fragmentShader);
+      if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+      console.log(gl.getShaderInfoLog(fragmentShader));
+      console.log(gl);
+      return null;
+      }
+
+      var shaderProgram = gl.createProgram();
+      gl.attachShader(shaderProgram, vertexShader);
+      gl.attachShader(shaderProgram, fragmentShader);
+      gl.linkProgram(shaderProgram);
+      if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+      console.log("Could not initialise shaders");
+      console.log(gl);
+      return null;
+      }
+      // SUCCESS 
+      return shaderProgram;
+      }
+
       mki3d.redraw = function() {
       var gl = mki3d.gl.context;
       var bg = mki3d.data.background;
@@ -52,6 +90,7 @@
 
       gl.clearColor(bg[0], bg[1], bg[2], bg[3]);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      gl.drawArrays(gl.POINTS, 0, 1);
       };
 
       
