@@ -30,8 +30,19 @@ var data; // user data
 
 var dataInit=function() {
     data={};
+    data.NUMBER_OF_VERTICES=1000;
     data.background = [ 0.0, 0.0, 0.0, 1.0 ];
+    data.vertexPosition= new Float32Array( 2*data.NUMBER_OF_VERTICES );
+
 };
+
+var functionPlot= function(){
+    var stepX= 2.0/data.NUMBER_OF_VERTICES;
+    var x=-1.0;
+    var i;
+    for(i=0; i<data.NUMBER_OF_VERTICES; i++){
+    }
+}
 
 var htmlInit= function() {
     html={};
