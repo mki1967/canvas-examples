@@ -1,7 +1,7 @@
 var vertexShaderSrc= ""+
     "attribute vec4 aVertexPosition; \n"+
     "void main( void ) { \n"+
-    "  gl_PointSize=5.0; \n"+
+    "  gl_PointSize=2.0; \n"+
     "  gl_Position= aVertexPosition; \n"+
     "} \n";
 
@@ -16,15 +16,18 @@ var fragmentShaderSrc= ""+
 window.onload= function(){
     htmlInit();
     glInit( html.canvas );
+    glObjects.shaderProgram=compileAndLinkShaderProgram( gl, vertexShaderSrc, fragmentShaderSrc );
+
     dataInit();
-    var shaderProgram=compileAndLinkShaderProgram( gl, vertexShaderSrc, fragmentShaderSrc );
-    gl.useProgram(shaderProgram);
+
+    gl.useProgram( glObjects.shaderProgram );
     window.onresize= callbackOnWindowResize;
     html.button1.onclick = callbackOnButton1;
     callbackOnWindowResize(); 
 };
 
 var gl; // GL context
+var glObjects; // references to various GL objects
 var html; // HTML objects
 var data; // user data
 
@@ -32,16 +35,27 @@ var dataInit=function() {
     data={};
     data.NUMBER_OF_VERTICES=1000;
     data.background = [ 0.0, 0.0, 0.0, 1.0 ];
-    data.vertexPosition= new Float32Array( 2*data.NUMBER_OF_VERTICES );
+    data.vertexPositions= functionPlot();
 
+    glObjects.bufferId = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId );
+    gl.bufferData(gl.ARRAY_BUFFER, data.vertexPositions , gl.DYNAMIC_DRAW );   
+
+    glObjects.aVertexPositionLocation = gl.getAttribLocation(glObjects.shaderProgram, "aVertexPosition");
 };
 
 var functionPlot= function(){
     var stepX= 2.0/data.NUMBER_OF_VERTICES;
     var x=-1.0;
+    var vArray=[];
     var i;
     for(i=0; i<data.NUMBER_OF_VERTICES; i++){
+	y=Math.sin(x*Math.PI);
+	vArray.push(x);
+	vArray.push(y);
+	x+= stepX;
     }
+    return new Float32Array( vArray );
 }
 
 var htmlInit= function() {
@@ -56,6 +70,7 @@ var glInit= function(canvas) {
     gl = canvas.getContext("experimental-webgl");
     gl.viewportWidth = canvas.width;
     gl.viewportHeight = canvas.height;
+    glObjects={}; 
 };
 
 var compileAndLinkShaderProgram=function ( gl, vertexShaderSource, fragmentShaderSource ){
@@ -98,7 +113,11 @@ var redraw = function() {
 
     gl.clearColor(bg[0], bg[1], bg[2], bg[3]);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.drawArrays(gl.POINTS, 0, 1);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId ); /* refer to the buffer */
+    gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
+    gl.enableVertexAttribArray(glObjects.aVertexPositionLocation);
+    gl.drawArrays(gl.POINTS, 0 /* offset */, data.NUMBER_OF_VERTICES);
 };
 
 
