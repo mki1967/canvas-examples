@@ -1,56 +1,113 @@
+
+
+/* vertex shader source code */
 var vertexShaderSrc= ""+
     "attribute vec4 aVertexPosition; \n"+
+    "uniform vec3 uMove; \n"+
     "void main( void ) { \n"+
-    "  gl_PointSize=2.0; \n"+
-    "  gl_Position= aVertexPosition; \n"+
+    "  gl_PointSize=4.0; \n"+
+    "  gl_Position= aVertexPosition+ vec4( uMove, 0); \n"+
     "} \n";
 
+/* fragment shader source code */
 var fragmentShaderSrc= ""+
-    "precision mediump float; \n"+
+    "precision mediump float; \n"+ 
+    "uniform vec3 uColorRGB; \n"+ 
     "void main( void ) { \n"+
-    "  gl_FragColor = vec4(1.0,1.0,1.0,1.0); \n"+
+    "  gl_FragColor = vec4( uColorRGB, 1.0 ); \n"+
     "} \n";
 
-
-
-window.onload= function(){
-    htmlInit();
-    glInit( html.canvas );
-    glObjects.shaderProgram=compileAndLinkShaderProgram( gl, vertexShaderSrc, fragmentShaderSrc );
-
-    dataInit();
-
-    gl.useProgram( glObjects.shaderProgram );
-    window.onresize= callbackOnWindowResize;
-    html.button1.onclick = callbackOnButton1;
-    callbackOnWindowResize(); 
-};
 
 var gl; // GL context
 var glObjects; // references to various GL objects
 var html; // HTML objects
 var data; // user data
 
+var glInit= function(canvas) {
+    gl = canvas.getContext("experimental-webgl");
+    gl.viewportWidth = canvas.width;
+    gl.viewportHeight = canvas.height;
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.LEQUAL);
+
+    glObjects={}; 
+
+    /* create executable shader program */
+    glObjects.shaderProgram=compileAndLinkShaderProgram( gl, vertexShaderSrc, fragmentShaderSrc );
+    /* attributes */
+    glObjects.aVertexPositionLocation = gl.getAttribLocation(glObjects.shaderProgram, "aVertexPosition");
+    gl.enableVertexAttribArray(glObjects.aVertexPositionLocation);
+
+    /* uniform variables */
+    glObjects.uMoveLocation = gl.getUniformLocation(glObjects.shaderProgram, "uMove");
+    glObjects.uColorRGBLocation = gl.getUniformLocation(glObjects.shaderProgram, "uColorRGB");
+
+    gl.useProgram( glObjects.shaderProgram );
+};
+
 var dataInit=function() {
     data={};
     data.NUMBER_OF_VERTICES=1000;
     data.background = [ 0.0, 0.0, 0.0, 1.0 ];
-    data.vertexPositions= functionPlot();
 
-    glObjects.bufferId = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId );
-    gl.bufferData(gl.ARRAY_BUFFER, data.vertexPositions , gl.DYNAMIC_DRAW );   
+    data.vertexPositions1= functionPlot(f1);
+    glObjects.bufferId1 = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId1 );
+    gl.bufferData(gl.ARRAY_BUFFER, data.vertexPositions1 , gl.STATIC_DRAW );
+    data.move1=[0, 0.5, 0.5];   
+    data.colorRGB1=[1.0, 1.0, 0.0]; 
+  
+    data.vertexPositions2= functionPlot(f2);
+    glObjects.bufferId2 = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId2 );
+    gl.bufferData(gl.ARRAY_BUFFER, data.vertexPositions2 , gl.STATIC_DRAW );
+    data.move2=[0, -0.5, -0.5];   
+    data.colorRGB2=[0.0, 1.0, 1.0];   
 
-    glObjects.aVertexPositionLocation = gl.getAttribLocation(glObjects.shaderProgram, "aVertexPosition");
+}; 
+
+var redraw = function() {
+    var bg = data.background;
+
+    /* prepare clean screen */
+    gl.clearColor(bg[0], bg[1], bg[2], bg[3]);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    /* draw object 1 */
+    gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId1 ); /* refer to the buffer */
+    gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
+    gl.uniform3fv( glObjects.uMoveLocation, data.move1 );
+    gl.uniform3fv( glObjects.uColorRGBLocation, data.colorRGB1 );
+    gl.drawArrays(gl.POINTS, 0 /* offset */, data.NUMBER_OF_VERTICES);
+
+    /* draw object 2 */
+    gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId2 ); /* refer to the buffer */
+    gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
+    gl.uniform3fv( glObjects.uMoveLocation, data.move2 );
+    gl.uniform3fv( glObjects.uColorRGBLocation, data.colorRGB2 );
+    gl.drawArrays(gl.POINTS, 0 /* offset */, data.NUMBER_OF_VERTICES);
 };
 
-var functionPlot= function(){
+
+
+/* some functions: [-1,1] -> R */
+var f1= function( x ) {
+    return Math.sin(x*Math.PI);
+};
+
+var f2= function( x ) {
+    return Math.cos(x*Math.PI);
+};
+
+/* create Float32Array with vertex (x,y) coordinates */
+var functionPlot= function( f ){
     var stepX= 2.0/data.NUMBER_OF_VERTICES;
     var x=-1.0;
     var vArray=[];
     var i;
     for(i=0; i<data.NUMBER_OF_VERTICES; i++){
-	y=Math.sin(x*Math.PI);
+	y=f(x);
 	vArray.push(x);
 	vArray.push(y);
 	x+= stepX;
@@ -66,13 +123,8 @@ var htmlInit= function() {
 };
 
 
-var glInit= function(canvas) {
-    gl = canvas.getContext("experimental-webgl");
-    gl.viewportWidth = canvas.width;
-    gl.viewportHeight = canvas.height;
-    glObjects={}; 
-};
 
+/* create executable shader program */
 var compileAndLinkShaderProgram=function ( gl, vertexShaderSource, fragmentShaderSource ){
     var vertexShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vertexShader, vertexShaderSource);
@@ -105,21 +157,6 @@ var compileAndLinkShaderProgram=function ( gl, vertexShaderSource, fragmentShade
     return shaderProgram;
 };
 
-var redraw = function() {
-    var bg = data.background;
-
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
-
-    gl.clearColor(bg[0], bg[1], bg[2], bg[3]);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId ); /* refer to the buffer */
-    gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
-    gl.enableVertexAttribArray(glObjects.aVertexPositionLocation);
-    gl.drawArrays(gl.POINTS, 0 /* offset */, data.NUMBER_OF_VERTICES);
-};
-
 
 
 
@@ -143,3 +180,13 @@ var callbackOnButton1 = function () {
     redraw();
 };
 
+
+window.onload= function(){
+    htmlInit();
+    glInit( html.canvas );
+    dataInit();
+
+    window.onresize= callbackOnWindowResize;
+    html.button1.onclick = callbackOnButton1;
+    callbackOnWindowResize(); 
+};
