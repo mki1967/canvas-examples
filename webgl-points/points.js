@@ -1,5 +1,5 @@
 
-
+/* SHADER PROGRAM */
 /* vertex shader source code */
 var vertexShaderSrc= ""+
     "attribute vec4 aVertexPosition; \n"+
@@ -16,6 +16,29 @@ var fragmentShaderSrc= ""+
     "void main( void ) { \n"+
     "  gl_FragColor = vec4( uColorRGB, 1.0 ); \n"+
     "} \n";
+
+
+/* SHADER PROGRAM 2 */
+/* vertex shader source code */
+var vertexShaderSrc2= ""+
+    "attribute vec4 aVertexPosition; \n"+
+    "uniform vec3 uMove; \n"+
+    "varying vec3 vColorRGB; \n"+
+    "void main( void ) { \n"+
+    "  gl_PointSize=6.0; \n"+
+    "  gl_Position= aVertexPosition+ vec4( uMove, 0); \n"+
+    "  vColorRGB=  (vec3(1.0,1.0,1.0) + gl_Position.rgb)*0.5; \n"+
+    "} \n";
+
+/* fragment shader source code */
+var fragmentShaderSrc2= ""+
+    "precision mediump float; \n"+ 
+    "varying vec3 vColorRGB; \n"+ 
+    "void main( void ) { \n"+
+    "  gl_FragColor = vec4(vColorRGB, 1.0); \n"+
+    "} \n";
+
+
 
 
 var gl; // GL context
@@ -37,13 +60,18 @@ var glInit= function(canvas) {
     glObjects.shaderProgram=compileAndLinkShaderProgram( gl, vertexShaderSrc, fragmentShaderSrc );
     /* attributes */
     glObjects.aVertexPositionLocation = gl.getAttribLocation(glObjects.shaderProgram, "aVertexPosition");
-    gl.enableVertexAttribArray(glObjects.aVertexPositionLocation);
-
     /* uniform variables */
     glObjects.uMoveLocation = gl.getUniformLocation(glObjects.shaderProgram, "uMove");
     glObjects.uColorRGBLocation = gl.getUniformLocation(glObjects.shaderProgram, "uColorRGB");
 
-    gl.useProgram( glObjects.shaderProgram );
+    /* create executable shader program 2 */
+    glObjects.shaderProgram2=compileAndLinkShaderProgram( gl, vertexShaderSrc2, fragmentShaderSrc2 );
+    /* attributes */
+    glObjects.aVertexPositionLocation2 = gl.getAttribLocation(glObjects.shaderProgram2, "aVertexPosition");
+    gl.enableVertexAttribArray(glObjects.aVertexPositionLocation2);
+    /* uniform variables */
+    glObjects.uMoveLocation2 = gl.getUniformLocation(glObjects.shaderProgram2, "uMove");
+
 };
 
 var dataInit=function() {
@@ -55,15 +83,24 @@ var dataInit=function() {
     glObjects.bufferId1 = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId1 );
     gl.bufferData(gl.ARRAY_BUFFER, data.vertexPositions1 , gl.STATIC_DRAW );
-    data.move1=[0, 0.5, 0.5];   
-    data.colorRGB1=[1.0, 1.0, 0.0]; 
+    data.move1=[0, 0.0, 0.0];   
+    data.colorRGB1=[0.0, 1.0, 0.0]; 
     
     data.vertexPositions2= functionPlot(f2);
     glObjects.bufferId2 = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId2 );
     gl.bufferData(gl.ARRAY_BUFFER, data.vertexPositions2 , gl.STATIC_DRAW );
-    data.move2=[0, -0.0, -0.0];   
+    data.move2=[0, -0.1, -0.1];   
     data.colorRGB2=[0.0, 1.0, 1.0];   
+
+    data.vertexPositions3= new Float32Array( [ -0.5, 0.0, 
+					       0.0, 0.5, 
+					       0.5, 0.0, 
+					       0.0, -0.5
+					     ] );
+    glObjects.bufferId3 = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId3 );
+    gl.bufferData(gl.ARRAY_BUFFER, data.vertexPositions3 , gl.STATIC_DRAW );
 
 }; 
 
@@ -75,6 +112,8 @@ var redraw = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     /* draw object 1 */
+    gl.useProgram( glObjects.shaderProgram );
+    gl.enableVertexAttribArray(glObjects.aVertexPositionLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId1 ); /* refer to the buffer */
     gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
     gl.uniform3fv( glObjects.uMoveLocation, data.move1 );
@@ -82,11 +121,19 @@ var redraw = function() {
     gl.drawArrays(gl.POINTS, 0 /* offset */, data.NUMBER_OF_VERTICES);
 
     /* draw object 2 */
+    gl.useProgram( glObjects.shaderProgram2 );
+    gl.uniform3fv( glObjects.uMoveLocation2, data.move2 );
+    // gl.uniform3fv( glObjects.uColorRGBLocation, data.colorRGB2 );
     gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId2 ); /* refer to the buffer */
-    gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
-    gl.uniform3fv( glObjects.uMoveLocation, data.move2 );
-    gl.uniform3fv( glObjects.uColorRGBLocation, data.colorRGB2 );
+     gl.enableVertexAttribArray(glObjects.aVertexPositionLocation);
+   gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
     gl.drawArrays(gl.POINTS, 0 /* offset */, data.NUMBER_OF_VERTICES);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId3 ); /* refer to the buffer */
+    gl.enableVertexAttribArray(glObjects.aVertexPositionLocation);
+    gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
+    gl.drawArrays(gl.TRIANGLES, 0 /* offset */, 1);// data.vertexPositions3.length/2-2 );
+
 };
 
 
@@ -188,28 +235,28 @@ var callbackOnKeyDown =function (e){
     {
     case 38: // up
     case 73: // I
-        data.move1[1]+=step;
+        data.move2[1]+=step;
 	break;
     case 40: // down
     case 75: // K
-        data.move1[1]-=step;
+        data.move2[1]-=step;
 	break;
     case 37: // left
     case 74:// J
-        data.move1[0]-=step;
+        data.move2[0]-=step;
 	break;
     case 39:// right
     case 76: // L
-        data.move1[0]+=step;
+        data.move2[0]+=step;
 	break;
     case 70: // F
-        data.move1[2]+=step;
+        data.move2[2]+=step;
 	break;
     case 66: // B
-        data.move1[2]-=step;
+        data.move2[2]-=step;
 	break;
      }
-    html.span1.innerHTML=" move1 = "+ JSON.stringify(data.move1);
+    html.span1.innerHTML=" move2 = "+ JSON.stringify(data.move2);
     redraw();
 }
 
