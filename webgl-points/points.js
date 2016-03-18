@@ -57,12 +57,12 @@ var dataInit=function() {
     gl.bufferData(gl.ARRAY_BUFFER, data.vertexPositions1 , gl.STATIC_DRAW );
     data.move1=[0, 0.5, 0.5];   
     data.colorRGB1=[1.0, 1.0, 0.0]; 
-  
+    
     data.vertexPositions2= functionPlot(f2);
     glObjects.bufferId2 = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId2 );
     gl.bufferData(gl.ARRAY_BUFFER, data.vertexPositions2 , gl.STATIC_DRAW );
-    data.move2=[0, -0.5, -0.5];   
+    data.move2=[0, -0.0, -0.0];   
     data.colorRGB2=[0.0, 1.0, 1.0];   
 
 }; 
@@ -180,6 +180,30 @@ var callbackOnButton1 = function () {
     redraw();
 };
 
+var callbackOnKeyDown =function (e){
+    const step = 0.02; // 5 degrees 
+    var code= e.which || e.keyCode;
+    switch(code)
+    {
+    case 38: // up
+    case 73: // I
+        data.move1[1]+=step;
+	break;
+    case 40: // down
+    case 75: // K
+        data.move1[1]-=step;
+	break;
+    case 37: // left
+    case 74:// J
+        data.move1[0]-=step;
+	break;
+    case 39:// right
+    case 76: // L
+        data.move1[0]+=step;
+	break;
+    }
+    redraw();
+}
 
 window.onload= function(){
     htmlInit();
@@ -189,4 +213,5 @@ window.onload= function(){
     window.onresize= callbackOnWindowResize;
     html.button1.onclick = callbackOnButton1;
     callbackOnWindowResize(); 
+    window.onkeydown=callbackOnKeyDown;
 };
