@@ -120,6 +120,7 @@ var htmlInit= function() {
     html.html=document.querySelector('#htmlId');
     html.canvas= document.querySelector('#canvasId');
     html.button1= document.querySelector('#button1');
+    html.span1= document.querySelector('#span1');
 };
 
 
@@ -201,7 +202,14 @@ var callbackOnKeyDown =function (e){
     case 76: // L
         data.move1[0]+=step;
 	break;
-    }
+    case 70: // F
+        data.move1[2]+=step;
+	break;
+    case 66: // B
+        data.move1[2]-=step;
+	break;
+     }
+    html.span1.innerHTML=" move1 = "+ JSON.stringify(data.move1);
     redraw();
 }
 
