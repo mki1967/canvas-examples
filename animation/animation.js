@@ -41,7 +41,7 @@ var dataInit= function(){
     data.object1.NumberOfVertices=1;
     data.object1.drawMode=gl.POINTS;
 
-    /* Static backgroung object */
+    /* Static background object */
     data.object2={};
     // parameters for drawObject
     data.object2.position=[0,0, 0.7];
@@ -57,6 +57,24 @@ var dataInit= function(){
     data.object2.NumberOfVertices=4;
     data.object2.drawMode=gl.TRIANGLE_FAN;
 
+    /* Static foreground object */
+    data.object3={};
+    // parameters for drawObject
+    data.object3.position=[0,0, -0.7];
+    data.object3.colorRGB=[0.5, 0.2, 0.0];
+    data.object3.bufferId = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, data.object3.bufferId );
+    gl.bufferData(gl.ARRAY_BUFFER, 
+		  new Float32Array([ -1,  0, 
+				      0,  1, 
+				      1,  0,
+				      0, -1, 
+				     -1,  0,
+				      1,  0 ] ) , gl.STATIC_DRAW ); // load object's shape
+    data.object3.floatsPerVertex=2;
+    data.object3.NumberOfVertices=6;
+    data.object3.drawMode=gl.LINE_STRIP;
+
     /* animation */
     data.animation={};
     data.animation.requestId=0;
@@ -66,6 +84,7 @@ var dataInit= function(){
 var drawObject=function( obj ) {
     /* draw object obj */
     gl.useProgram( glObjects.shaderProgram );
+    gl.lineWidth(3);
     gl.enableVertexAttribArray(glObjects.aVertexPositionLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, obj.bufferId ); /* refer to the buffer */
     gl.vertexAttribPointer(glObjects.aVertexPositionLocation, obj.floatsPerVertex, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
@@ -82,6 +101,7 @@ var redraw = function() {
     /* draw objects */
     drawObject(data.object1);
     drawObject(data.object2);
+    drawObject(data.object3);
 
 }
 
