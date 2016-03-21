@@ -125,8 +125,8 @@ var redraw = function() {
     gl.uniform3fv( glObjects.uMoveLocation2, data.move2 );
     // gl.uniform3fv( glObjects.uColorRGBLocation, data.colorRGB2 );
     gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId2 ); /* refer to the buffer */
-     gl.enableVertexAttribArray(glObjects.aVertexPositionLocation);
-   gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
+    gl.enableVertexAttribArray(glObjects.aVertexPositionLocation);
+    gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
     gl.drawArrays(gl.POINTS, 0 /* offset */, data.NUMBER_OF_VERTICES);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId3 ); /* refer to the buffer */
@@ -255,7 +255,7 @@ var callbackOnKeyDown =function (e){
     case 66: // B
         data.move2[2]-=step;
 	break;
-     }
+    }
     html.span1.innerHTML=" move2 = "+ JSON.stringify(data.move2);
     redraw();
 }

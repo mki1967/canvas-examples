@@ -28,6 +28,8 @@ window.onload= function(){
     html.divMessages.innerHTML+="<li>"+"MAX_CUBE_MAP_TEXTURE_SIZE"+" = "+JSON.stringify(gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE))+"</li>\n";
     html.divMessages.innerHTML+="<li>"+"MAX_TEXTURE_SIZE"+" = "+JSON.stringify(gl.getParameter(gl.MAX_TEXTURE_SIZE))+"</li>\n";
     html.divMessages.innerHTML+="<li>"+"MAX_RENDERBUFFER_SIZE"+" = "+JSON.stringify(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE))+"</li>\n";
+
+    html.divMessages.innerHTML+="<li>"+"ALIASED_POINT_SIZE_RANGE"+" = "+JSON.stringify(gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE))+"</li>\n";
 /*
     html.divMessages.innerHTML+="<li>"+""+" = "+JSON.stringify(gl.getParameter(gl.))+"</li>\n";
 */
