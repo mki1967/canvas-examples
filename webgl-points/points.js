@@ -129,10 +129,11 @@ var redraw = function() {
     gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
     gl.drawArrays(gl.POINTS, 0 /* offset */, data.NUMBER_OF_VERTICES);
 
+    /* draw object 3 */
     gl.bindBuffer(gl.ARRAY_BUFFER, glObjects.bufferId3 ); /* refer to the buffer */
     gl.enableVertexAttribArray(glObjects.aVertexPositionLocation);
     gl.vertexAttribPointer(glObjects.aVertexPositionLocation, 2 /* 2 floats per vertex */, gl.FLOAT, false, 0 /* stride */, 0 /*offset */);
-    gl.drawArrays(gl.TRIANGLE_FAN, 0 /* offset */, 4);// data.vertexPositions3.length/2-2 );
+    gl.drawArrays(gl.TRIANGLE_FAN, 0 /* offset */, 4);
 
 };
 
