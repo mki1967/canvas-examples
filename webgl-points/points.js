@@ -230,7 +230,7 @@ var callbackOnButton1 = function () {
 };
 
 var callbackOnKeyDown =function (e){
-    const step = 0.02; // 5 degrees 
+    const step = 0.02;
     var code= e.which || e.keyCode;
     switch(code)
     {
