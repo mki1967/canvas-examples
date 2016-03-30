@@ -17,7 +17,7 @@
       <frac|1|2>\<cdot\><big|sum><rsub|i=0><rsup|n-1>x<rsub|i>y<rsub|<around*|(|i+1|)><bmod>n>-x<rsub|<around*|(|i+1|)><bmod>n>y<rsub|i>
     </equation*>
 
-    a powierzchni¡ wielok¡ta.
+    a powierzchni¡ wielok¡ta <math|P>.
 
     <item>
   </enumerate-numeric>
