@@ -12,6 +12,18 @@ var htmlInit= function() {
 /* functions returning values in [-1 ... 1] */
 var fun= [ 
     function( x,y,z ) {
+	return x;
+    },
+
+    function( x,y,z ) {
+	return z;
+    },
+
+    function( x,y,z ) {
+	return y;
+    },
+
+    function( x,y,z ) {
 	return Math.sin( x * Math.PI * 4 );
     },
 
@@ -21,6 +33,18 @@ var fun= [
 
     function( x,y,z ) {
 	return Math.sin( y * Math.PI * 4 );
+    },
+
+    function( x,y,z ) {
+	return Math.cos( x * Math.PI * 4 );
+    },
+
+    function( x,y,z ) {
+	return Math.cos( z * Math.PI * 4 );
+    },
+
+    function( x,y,z ) {
+	return Math.cos( y * Math.PI * 4 );
     }
 ];
 
@@ -28,7 +52,7 @@ var shiftAndScale= function( value ){
     /* transform range [-1..1] to [0..255] */
     value+=1;
     value*= 255/2;
-    return value;
+    return Math.round(value);
 }
 
 
@@ -92,13 +116,13 @@ var fillCanvas= function(canvas, fRGB){
     var maxVertical  = canvas.height/2;
     var depth= canvas.width/2;
     var h,v,x,y,z;
-    for(h = -maxHorizontal; h < maxHorizontal; h++)
-	for(v = -maxVertical; v < maxVertical; v++ ) {
-	    putPixel(ctx, h,v, fRGB(h,v,depth));
+    for(h = -maxHorizontal, ph=0; h < maxHorizontal; h++,ph++)
+	for(v = -maxVertical,pv=0; v < maxVertical; v++,pv++ ) {
+	    putPixel(ctx, ph,pv, fRGB(h,v,depth));
 	}
 }
 
 window.onload= function(){
     htmlInit();
-    fillCanvas(html.canvasZPlus, createFunctionRGB( fun[0], fun[1], fun[2], [0,1,2]) );
+    fillCanvas(html.canvasZPlus, createFunctionRGB( fun[3], fun[4], fun[2], [0,1,2]) );
 }
