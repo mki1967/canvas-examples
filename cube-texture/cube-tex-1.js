@@ -3,6 +3,8 @@ var html; // HTML objects
 var htmlInit= function() {
     html={};
     html.html=document.querySelector('#htmlId');
+
+    html.message= document.querySelector('#message');
     html.canvasZPlus= document.querySelector('#canvasZPlus');
     html.canvasZMinus= document.querySelector('#canvasZMinus');
 
@@ -130,12 +132,18 @@ var fillCanvas= function(canvas, fRGB){
 
 window.onload= function(){
     htmlInit();
-    fillCanvas(html.canvasZPlus, createFunctionRGB( fun[0], fun[1], fun[2], [0,1,2]) );
-    fillCanvas(html.canvasZMinus, createFunctionRGB( fun[0], fun[1], fun[2], [3,1,5]) );
+    var r=Math.floor( Math.random()* fun.length );
+    var g=Math.floor( Math.random()* fun.length );
+    var b=Math.floor( Math.random()* fun.length );
 
-    fillCanvas(html.canvasXPlus, createFunctionRGB( fun[0], fun[1], fun[2],  [2,1,3]) );
-    fillCanvas(html.canvasXMinus, createFunctionRGB( fun[0], fun[1], fun[2], [5,1,0]) );
+    html.message.innerHTML+=" [r,g,b]="+JSON.stringify([r,g,b]);
 
-    fillCanvas(html.canvasYPlus, createFunctionRGB( fun[0], fun[1], fun[2],  [0,2,4]) );
-    fillCanvas(html.canvasYMinus, createFunctionRGB( fun[0], fun[1], fun[2], [0,5,2]) );
+    fillCanvas(html.canvasZPlus, createFunctionRGB( fun[r], fun[g], fun[b], [0,1,2]) );
+    fillCanvas(html.canvasZMinus, createFunctionRGB( fun[r], fun[g], fun[b], [3,1,5]) );
+
+    fillCanvas(html.canvasXPlus, createFunctionRGB( fun[r], fun[g], fun[b],  [2,1,3]) );
+    fillCanvas(html.canvasXMinus, createFunctionRGB( fun[r], fun[g], fun[b], [5,1,0]) );
+
+    fillCanvas(html.canvasYPlus, createFunctionRGB( fun[r], fun[g], fun[b],  [0,2,4]) );
+    fillCanvas(html.canvasYMinus, createFunctionRGB( fun[r], fun[g], fun[b], [0,5,2]) );
 }
