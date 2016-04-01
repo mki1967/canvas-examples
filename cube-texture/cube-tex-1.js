@@ -12,15 +12,15 @@ var htmlInit= function() {
 /* functions returning values in [-1 ... 1] */
 var fun= [ 
     function( x,y,z ) {
-	return Math.Sin( x * Math.PI * 4 );
+	return Math.sin( x * Math.PI * 4 );
     },
 
     function( x,y,z ) {
-	return Math.Sin( z * Math.PI * 4 );
+	return Math.sin( z * Math.PI * 4 );
     },
 
     function( x,y,z ) {
-	return Math.Sin( y * Math.PI * 4 );
+	return Math.sin( y * Math.PI * 4 );
     }
 ];
 
@@ -54,9 +54,11 @@ var vectorNormalized = function (v) {
     if(len==0) return [0,0,0]; // normalized zero vector :-(
     var vn= [v[0], v[1], v[2]] ; //  clone of vector v
     var s =1/len; 
-    var vectorScale(vn,  s,s,s);
+    vectorScale(vn,  s,s,s);
     return vn;
 };
+
+
 
 
 
@@ -66,16 +68,37 @@ var putPixel= function(ctx, x,y, rgb){
     ctx.fillRect(x,y,1,1);
 }
 
+
+var createFunctionRGB= function(fR,fG,fB, xyz) {
+    /* returns function used in fillCanvas */
+    /* xyz is used for selection and inversion of arguments x,y,z from [h, v, depth, -h,-v, -depth] */
+    var t=shiftAndScale;
+    return function(h,v,depth){ 
+	var args=[h,v,depth, -h,-v,-depth];
+	var vxyz=vectorNormalized([ args[xyz[0]], args[xyz[1]], args[xyz[2]]]);
+ 	var x=vxyz[0];
+	var y=vxyz[1];
+	var z=vxyz[2];
+
+	return [t(fR(x,y,z)), t(fG(x,y,z)), t(fB(x,y,z))];
+    }
+}
+
 var fillCanvas= function(canvas, fRGB){
     /* fRGB - function of (h,v,depth) - returns vector [r,g,b] in [0 ... 255]^3 */
     
     var ctx=canvas.getContext("2d");
-    var maxHorizontal= ctx.width/2;
-    var maxVertical  = ctx.height/2;
-    var depth= ctx.width/2;
+    var maxHorizontal= canvas.width/2;
+    var maxVertical  = canvas.height/2;
+    var depth= canvas.width/2;
     var h,v,x,y,z;
     for(h = -maxHorizontal; h < maxHorizontal; h++)
 	for(v = -maxVertical; v < maxVertical; v++ ) {
-	    putPixel(ctx, fRGB(h,v,depth));
+	    putPixel(ctx, h,v, fRGB(h,v,depth));
 	}
+}
+
+window.onload= function(){
+    htmlInit();
+    fillCanvas(html.canvasZPlus, createFunctionRGB( fun[0], fun[1], fun[2], [0,1,2]) );
 }
