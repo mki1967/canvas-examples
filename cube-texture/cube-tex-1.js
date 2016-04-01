@@ -145,5 +145,5 @@ window.onload= function(){
     fillCanvas(html.canvasXMinus, createFunctionRGB( fun[r], fun[g], fun[b], [5,1,0]) );
 
     fillCanvas(html.canvasYPlus, createFunctionRGB( fun[r], fun[g], fun[b],  [0,2,4]) );
-    fillCanvas(html.canvasYMinus, createFunctionRGB( fun[r], fun[g], fun[b], [0,5,2]) );
+    fillCanvas(html.canvasYMinus, createFunctionRGB( fun[r], fun[g], fun[b], [0,5,1]) );
 }
