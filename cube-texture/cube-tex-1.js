@@ -17,7 +17,7 @@ var htmlInit= function() {
 
 /* assume that x,y,z in [-1 ... 1] */
 
-/* functions returning values in [-1 ... 1] */
+/* functions with values in [-1 ... 1] */
 var fun= [ 
     function( x,y,z ) {
 	return x;
@@ -116,6 +116,15 @@ var createFunctionRGB= function(fR,fG,fB, xyz) {
     }
 }
 
+var xyzZPlus  = [0,1,2];
+var xyzZMinus = [3,1,5];
+
+var xyzXPlus  = [2,1,3];
+var xyzXMinus = [5,1,0];
+
+var xyzYPlus  = [0,2,4];
+var xyzYMinus = [0,5,1];
+
 var fillCanvas= function(canvas, fRGB){
     /* fRGB - function of (h,v,depth) - returns vector [r,g,b] in [0 ... 255]^3 */
     
@@ -130,6 +139,21 @@ var fillCanvas= function(canvas, fRGB){
 	}
 }
 
+var fillCanvasUpsideDown= function(canvas, fRGB){
+    /* fRGB - function of (h,v,depth) - returns vector [r,g,b] in [0 ... 255]^3 */
+    
+    var ctx=canvas.getContext("2d");
+    var maxHorizontal= canvas.width/2;
+    var maxVertical  = canvas.height/2;
+    var depth= canvas.width/2;
+    var h,v,x,y,z;
+    for(h = -maxHorizontal, ph=0; h < maxHorizontal; h++,ph++)
+	for(v = -maxVertical,pv=0; v < maxVertical; v++,pv++ ) {
+	    putPixel(ctx, ph,pv, fRGB(h,v,depth));
+	}
+}
+
+
 window.onload= function(){
     htmlInit();
     var r=Math.floor( Math.random()* fun.length );
@@ -138,12 +162,13 @@ window.onload= function(){
 
     html.message.innerHTML+=" [r,g,b]="+JSON.stringify([r,g,b]);
 
-    fillCanvas(html.canvasZPlus, createFunctionRGB( fun[r], fun[g], fun[b], [0,1,2]) );
-    fillCanvas(html.canvasZMinus, createFunctionRGB( fun[r], fun[g], fun[b], [3,1,5]) );
+    fillCanvas(html.canvasZPlus, createFunctionRGB( fun[r], fun[g], fun[b], xyzZPlus ) );
+    fillCanvas(html.canvasZMinus, createFunctionRGB( fun[r], fun[g], fun[b], xyzZMinus ) );
 
-    fillCanvas(html.canvasXPlus, createFunctionRGB( fun[r], fun[g], fun[b],  [2,1,3]) );
-    fillCanvas(html.canvasXMinus, createFunctionRGB( fun[r], fun[g], fun[b], [5,1,0]) );
+    fillCanvas(html.canvasXPlus, createFunctionRGB( fun[r], fun[g], fun[b],  xyzXPlus ) );
+    fillCanvas(html.canvasXMinus, createFunctionRGB( fun[r], fun[g], fun[b], xyzXMinus ) );
 
-    fillCanvas(html.canvasYPlus, createFunctionRGB( fun[r], fun[g], fun[b],  [0,2,4]) );
-    fillCanvas(html.canvasYMinus, createFunctionRGB( fun[r], fun[g], fun[b], [0,5,1]) );
+    fillCanvas(html.canvasYPlus, createFunctionRGB( fun[r], fun[g], fun[b], xyzYPlus) );
+    fillCanvas(html.canvasYMinus, createFunctionRGB( fun[r], fun[g], fun[b], xyzYMinus) );
+    // fillCanvasUpsideDown(html.canvasYMinus, createFunctionRGB( fun[r], fun[g], fun[b], xyzYMinus) );
 }
