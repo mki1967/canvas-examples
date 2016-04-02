@@ -19,6 +19,8 @@ var htmlInit= function() {
 
 window.onload= function(){
     htmlInit();
+    var fun=sbx_fun;
+
     var r=Math.floor( Math.random()* fun.length );
     var g=Math.floor( Math.random()* fun.length );
     var b=Math.floor( Math.random()* fun.length );
@@ -26,15 +28,16 @@ window.onload= function(){
     // r=g=b=fun.length-1; // test
     // g=fun.length-1; // test
 
+
     html.message.innerHTML+=" [r,g,b]="+JSON.stringify([r,g,b]);
 
-    fillCanvas(html.canvasZPlus, createFunctionRGB( fun[r], fun[g], fun[b], xyzZPlus ) );
-    fillCanvas(html.canvasZMinus, createFunctionRGB( fun[r], fun[g], fun[b], xyzZMinus ) );
+    sbx_fillCanvas(html.canvasZPlus, sbx_createFunctionRGB( fun[r], fun[g], fun[b], sbx_xyzZPlus ) );
+    sbx_fillCanvas(html.canvasZMinus, sbx_createFunctionRGB( fun[r], fun[g], fun[b], sbx_xyzZMinus ) );
 
-    fillCanvas(html.canvasXPlus, createFunctionRGB( fun[r], fun[g], fun[b],  xyzXPlus ) );
-    fillCanvas(html.canvasXMinus, createFunctionRGB( fun[r], fun[g], fun[b], xyzXMinus ) );
+    sbx_fillCanvas(html.canvasXPlus, sbx_createFunctionRGB( fun[r], fun[g], fun[b],  sbx_xyzXPlus ) );
+    sbx_fillCanvas(html.canvasXMinus, sbx_createFunctionRGB( fun[r], fun[g], fun[b], sbx_xyzXMinus ) );
 
-    fillCanvas(html.canvasYPlus, createFunctionRGB( fun[r], fun[g], fun[b], xyzYPlus) );
-    fillCanvas(html.canvasYMinus, createFunctionRGB( fun[r], fun[g], fun[b], xyzYMinus) );
-    // fillCanvasUpsideDown(html.canvasYMinus, createFunctionRGB( fun[r], fun[g], fun[b], xyzYMinus) ); // test
+    sbx_fillCanvas(html.canvasYPlus, sbx_createFunctionRGB( fun[r], fun[g], fun[b], sbx_xyzYPlus) );
+    sbx_fillCanvas(html.canvasYMinus, sbx_createFunctionRGB( fun[r], fun[g], fun[b], sbx_xyzYMinus) );
+    // sbx_fillCanvasUpsideDown(html.canvasYMinus, sbx_createFunctionRGB( fun[r], fun[g], fun[b], xyzYMinus) ); // test
 }
