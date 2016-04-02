@@ -57,6 +57,10 @@ var fun= [
 
     function( x,y,z ) {
 	return Math.sin( x * Math.PI * 4 )*Math.cos( y * Math.PI * 4 );
+    },
+
+    function( x,y,z ) {
+	return Math.sin( x * Math.PI * 4 )*Math.cos( z * Math.PI * 4 );
     }
 ];
 
