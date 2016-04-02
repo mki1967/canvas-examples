@@ -53,6 +53,10 @@ var fun= [
 
     function( x,y,z ) {
 	return Math.cos( y * Math.PI * 4 );
+    },
+
+    function( x,y,z ) {
+	return Math.sin( x * Math.PI * 4 )*Math.cos( y * Math.PI * 4 );
     }
 ];
 
@@ -160,6 +164,9 @@ window.onload= function(){
     var g=Math.floor( Math.random()* fun.length );
     var b=Math.floor( Math.random()* fun.length );
 
+    // r=g=b=fun.length-1; // test
+    // g=fun.length-1; // test
+
     html.message.innerHTML+=" [r,g,b]="+JSON.stringify([r,g,b]);
 
     fillCanvas(html.canvasZPlus, createFunctionRGB( fun[r], fun[g], fun[b], xyzZPlus ) );
@@ -170,5 +177,5 @@ window.onload= function(){
 
     fillCanvas(html.canvasYPlus, createFunctionRGB( fun[r], fun[g], fun[b], xyzYPlus) );
     fillCanvas(html.canvasYMinus, createFunctionRGB( fun[r], fun[g], fun[b], xyzYMinus) );
-    // fillCanvasUpsideDown(html.canvasYMinus, createFunctionRGB( fun[r], fun[g], fun[b], xyzYMinus) );
+    // fillCanvasUpsideDown(html.canvasYMinus, createFunctionRGB( fun[r], fun[g], fun[b], xyzYMinus) ); // test
 }
