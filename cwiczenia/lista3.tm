@@ -18,8 +18,8 @@
 
     a powierzchni¡ wielok¡ta <math|P>.
 
-    <item>(9p.) Dane s¡ liczby <math|n>,<math|f>, <math|y<rsub|s>>,
-    <math|z<rsub|s>>, takie, »e <math|0\<less\>n\<less\>f>, oraz
+    <item>(9p.) Dane s¡ liczby <math|n>,<math|f>, <math|s<rsub|y>>,
+    <math|s<rsub|z>>, takie, »e <math|0\<less\>n\<less\>f>, oraz
     <math|s<rsub|y>\<gtr\>0> i <math|s<rsub|z>\<gtr\>0>. Wyznacz macierz
     <math|M\<in\>\<bbb-R\><rsup|3>\<times\>\<bbb-R\><rsup|3>>, tak¡ »e\ 
 
@@ -50,16 +50,16 @@
     <item>(10p.) Chcemy mie¢ transformacj¦ izometryczn¡ \ <math|T:
     \<bbb-R\><rsup|3>\<rightarrow\> \<bbb-R\><rsup|3>>, która dla zadanych
     dwóch trójek punktów niewspóªliniowych <math|<around*|(|A,B,C|)>> i
-    <math|<around*|(|C,D,E|)>> przeksztaªca:\ 
+    <math|<around*|(|D,E,F|)>> przeksztaªca:\ 
 
     <\itemize-dot>
       <item>punkt <math|A> na punkt <math|C>,
 
-      <item>odcinek <math|A B> na odcinek na póªprostej o pocz¡tku <math|C>
-      zawieraj¡cej odcinek <math|C D>, oraz
+      <item>odcinek <math|A B> na odcinek na póªprostej o pocz¡tku <math|D>
+      zawieraj¡cej odcinek <math|D E>, oraz
 
       <item>trójk¡t <math|A B C> na trójk¡t na póªpªaszy¹nie ograniczonej
-      prost¡ <math|C D> zawieraj¡cej trójk¡t <math|C D E>.
+      prost¡ <math|D E> zawieraj¡cej trójk¡t <math|D E F>.
     </itemize-dot>
 
     Znajd¹ macierz <math|M\<in\>R<rsup|4>\<times\>R<rsup|4>>, \ tak¡ »e dla
