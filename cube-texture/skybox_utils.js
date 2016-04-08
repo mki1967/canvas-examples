@@ -1,3 +1,8 @@
+/* 
+skybox creator by mki1967@gmail.com 
+
+use three selected functions from sbx_fun for RGB components 
+*/
 
 /* sbx_ - prefix for objects of this library */
 
@@ -113,9 +118,13 @@ var sbx_xyzZMinus = [3,1,5];
 
 var sbx_xyzXPlus  = [2,1,3];
 var sbx_xyzXMinus = [5,1,0];
-
+/*
 var sbx_xyzYPlus  = [0,2,4];
 var sbx_xyzYMinus = [0,5,1];
+*/
+
+var sbx_xyzYMinus  = [0,2,4];
+var sbx_xyzYPlus = [0,5,1];
 
 var sbx_fillCanvas= function(canvas, fRGB){
     /* fRGB - function of (h,v,depth) - returns vector [r,g,b] in [0 ... 255]^3 */
@@ -145,3 +154,189 @@ var sbx_fillCanvasUpsideDown= function(canvas, fRGB){
 	}
 }
 
+
+/* shaders - see: http://learnopengl.com/#!Advanced-OpenGL/Cubemaps */
+
+var sbx_vertexShaderSource=""+
+    "attribute vec3 position;\n"+
+    "varying vec3 TexCoords;\n"+
+    "uniform mat4 projection;\n"+
+    "uniform mat4 view;\n"+
+    "void main()\n"+
+    "{\n"+
+    "    vec4 pos = projection * view * vec4(position, 1.0);\n"+
+    "    gl_Position = pos.xyww;\n"+
+//    "    gl_Position = vec4(pos.xy, 1.0,1.0);\n"+
+    "    TexCoords = position;\n"+
+    "}\n";
+
+var sbx_fragmentShaderSource=""+
+    "precision mediump float;\n"+
+    "varying vec3 TexCoords;\n"+
+    "uniform samplerCube skybox;\n"+
+    "void main()\n"+
+    "{\n"+
+    "    gl_FragColor = textureCube(skybox, TexCoords);\n"+
+//    "    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"+
+    "}\n";
+
+
+/* shaders */
+var sbx_vertexShader=null;
+var sbx_fragmentShader=null;
+/* shader program */
+var sbx_shaderProgram=null;
+
+/* vertex attributes locations */
+var sbx_position=null;
+
+/* uniform variables locations */
+var sbx_projection=null;
+var sbx_view=null;
+var sbx_skybox=null;
+
+
+
+/* input vertices of cube triangles */
+var sbx_Float32Array= new Float32Array( [ 
+	-1,  1, -1,
+	-1, -1, -1,
+	+1, -1, -1,
+	+1, -1, -1,
+	+1,  1, -1,
+        -1,  1, -1,	    
+	-1, -1,  1,
+        -1, -1, -1,
+        -1,  1, -1,
+        -1,  1, -1,
+        -1,  1,  1,
+        -1, -1,  1,
+	+1, -1, -1,
+	+1, -1,  1,
+	+1,  1,  1,
+	+1,  1,  1,
+	+1,  1, -1,
+	+1, -1, -1,
+        -1, -1,  1,
+        -1,  1,  1,
+	+1,  1,  1,
+	+1,  1,  1,
+	+1, -1,  1,
+        -1, -1,  1,
+        -1,  1, -1,
+	+1,  1, -1,
+	+1,  1,  1,
+	+1,  1,  1,
+        -1,  1,  1,
+        -1,  1, -1,
+        -1, -1, -1,
+        -1, -1,  1,
+	+1, -1, -1,
+	+1, -1, -1,
+        -1, -1,  1,
+	+1, -1,  1
+]);
+
+var sbx_arrayBuffer=null;
+
+/* texture parameters */
+var sbx_textureId=null;
+var sbx_textureUnit=0; // default
+
+var sbx_makeShaderProgram= function(gl){
+    /* Parameters:
+       gl - WebGL context 
+    */
+
+    sbx_vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(sbx_vertexShader, sbx_vertexShaderSource);
+    gl.compileShader(sbx_vertexShader);
+    if (!gl.getShaderParameter(sbx_vertexShader, gl.COMPILE_STATUS)) {
+	console.log(gl.getShaderInfoLog(sbx_vertexShader));
+	return null;
+    }
+
+    sbx_fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(sbx_fragmentShader, sbx_fragmentShaderSource);
+    gl.compileShader(sbx_fragmentShader);
+    if (!gl.getShaderParameter(sbx_fragmentShader, gl.COMPILE_STATUS)) {
+	console.log(gl.getShaderInfoLog(sbx_fragmentShader));
+	return null;
+    }
+
+    sbx_shaderProgram = gl.createProgram();
+    gl.attachShader(sbx_shaderProgram, sbx_vertexShader);
+    gl.attachShader(sbx_shaderProgram, sbx_fragmentShader);
+    gl.linkProgram(sbx_shaderProgram);
+    if (!gl.getProgramParameter(sbx_shaderProgram, gl.LINK_STATUS)) {
+	console.log("Could not initialise shaders");
+	return null;
+    }
+ 
+   gl.useProgram(sbx_shaderProgram);		
+
+    /* set vertex attributes locations */
+    sbx_position=gl.getAttribLocation(sbx_shaderProgram, "position");
+
+    /* set uniform variables locations */
+    sbx_projection=gl.getUniformLocation(sbx_shaderProgram, "projection");
+    sbx_view=gl.getUniformLocation(sbx_shaderProgram, "view");
+    sbx_skybox=gl.getUniformLocation(sbx_shaderProgram, "skybox");
+
+    /* load buffer data */
+    sbx_arrayBuffer= gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, sbx_arrayBuffer );
+    gl.bufferData(gl.ARRAY_BUFFER, sbx_Float32Array , gl.STATIC_DRAW );
+
+    /* create texture ID and set texture parameters */
+    sbx_textureId=gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit); 
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    // gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+
+    // SUCCESS 
+    return sbx_shaderProgram;
+};
+
+var sbx_loadCubeFaceFromCanvas= function(gl, canvas, cubeFace){
+    /* use after  sbx_makeShaderProgram(gl) */ 
+    /* Parameters:
+      gl - WebGL context
+      canvas - container of the image
+      cubeFace - one of: gl.TEXTURE_CUBE_MAP_POSITIVE_X, ... 
+    */
+    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit); 
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
+    gl.texImage2D( cubeFace, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+};
+
+
+var sbx_drawSkybox= function ( gl, view, projection ) {
+    /* use after drawing the scene */
+    /* Parameters:
+      gl - WebGL context
+      view, projection - gl matrices 4x4 (column major)
+      textureUnit - integer from [0 ... gl.MAX_TEXTURE_IMAGE_UNITS]
+     */
+    gl.depthFunc(gl.LEQUAL);  
+
+    gl.useProgram(sbx_shaderProgram);		
+
+    gl.uniformMatrix4fv(sbx_view, false, view);
+    gl.uniformMatrix4fv(sbx_projection, false, projection);
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, sbx_arrayBuffer);
+    gl.vertexAttribPointer(sbx_position, 3, gl.FLOAT, false, 0, 0);
+
+    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit );
+    gl.uniform1i(sbx_skybox, sbx_textureUnit );
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
+
+  //  gl.drawArrays(gl.TRIANGLES, 0, sbx_Float32Array.length/3 );
+    gl.drawArrays(gl.TRIANGLES, 0, 36);
+    gl.depthFunc(gl.LESS);
+}        
