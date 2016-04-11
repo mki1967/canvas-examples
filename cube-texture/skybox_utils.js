@@ -1,13 +1,13 @@
-/* 
-skybox creator by mki1967@gmail.com 
+/*
+  skybox creator by mki1967@gmail.com
 
-use three selected functions from sbx_fun for RGB components 
+  use three selected functions from sbx_fun for RGB components
 */
 
 /* sbx_ - prefix for objects of this library */
 
 /* Table of functions with values in [-1 ... 1]^3 -> [-1 ... 1] */
-var sbx_fun= [ 
+var sbx_fun= [
     function( x,y,z ) {
 	return x;
     },
@@ -78,11 +78,11 @@ var sbx_vectorLength = function (a) {
     return Math.sqrt(sbx_scalarProduct(a,a));
 };
 
-var sbx_vectorNormalized = function (v) { 
+var sbx_vectorNormalized = function (v) {
     var len= sbx_vectorLength(v);
-    if(len==0) return [0,0,0]; // normalized zero vector :-(
+    if(len === 0.0) return [0,0,0]; // normalized zero vector :-(
     var vn= [v[0], v[1], v[2]] ; //  clone of vector v
-    var s =1/len; 
+    var s =1/len;
     sbx_vectorScale(vn,  s,s,s);
     return vn;
 };
@@ -102,10 +102,10 @@ var sbx_createFunctionRGB= function(fR,fG,fB, xyz) {
     /* returns function used in fillCanvas */
     /* xyz is used for selection and inversion of arguments x,y,z from [h, v, depth, -h,-v, -depth] */
     var t=sbx_shiftAndScale;
-    return function(h,v,depth){ 
+    return function(h,v,depth){
 	var args=[h,v,depth, -h,-v,-depth];
 	var vxyz=sbx_vectorNormalized([ args[xyz[0]], args[xyz[1]], args[xyz[2]] ]);
- 	var x=vxyz[0];
+	var x=vxyz[0];
 	var y=vxyz[1];
 	var z=vxyz[2];
 
@@ -119,8 +119,8 @@ var sbx_xyzZMinus = [3,1,5];
 var sbx_xyzXPlus  = [2,1,3];
 var sbx_xyzXMinus = [5,1,0];
 /*
-var sbx_xyzYPlus  = [0,2,4];
-var sbx_xyzYMinus = [0,5,1];
+  var sbx_xyzYPlus  = [0,2,4];
+  var sbx_xyzYMinus = [0,5,1];
 */
 
 var sbx_xyzYMinus  = [0,2,4];
@@ -166,7 +166,7 @@ var sbx_vertexShaderSource=""+
     "{\n"+
     "    vec4 pos = projection * view * vec4(position, 1.0);\n"+
     "    gl_Position = pos.xyww;\n"+
-//    "    gl_Position = vec4(pos.xy, 1.0,1.0);\n"+
+    //    "    gl_Position = vec4(pos.xy, 1.0,1.0);\n"+
     "    TexCoords = position;\n"+
     "}\n";
 
@@ -177,7 +177,7 @@ var sbx_fragmentShaderSource=""+
     "void main()\n"+
     "{\n"+
     "    gl_FragColor = textureCube(skybox, TexCoords);\n"+
-//    "    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"+
+    //    "    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"+
     "}\n";
 
 
@@ -198,13 +198,13 @@ var sbx_skybox=null;
 
 
 /* input vertices of cube triangles */
-var sbx_Float32Array= new Float32Array( [ 
+var sbx_Float32Array= new Float32Array( [
 	-1,  1, -1,
 	-1, -1, -1,
 	+1, -1, -1,
 	+1, -1, -1,
 	+1,  1, -1,
-        -1,  1, -1,	    
+        -1,  1, -1,
 	-1, -1,  1,
         -1, -1, -1,
         -1,  1, -1,
@@ -245,7 +245,7 @@ var sbx_textureUnit=0; // default
 
 var sbx_makeShaderProgram= function(gl){
     /* Parameters:
-       gl - WebGL context 
+       gl - WebGL context
     */
 
     sbx_vertexShader = gl.createShader(gl.VERTEX_SHADER);
@@ -272,8 +272,8 @@ var sbx_makeShaderProgram= function(gl){
 	console.log("Could not initialise shaders");
 	return null;
     }
- 
-   gl.useProgram(sbx_shaderProgram);		
+    
+    gl.useProgram(sbx_shaderProgram);
 
     /* set vertex attributes locations */
     sbx_position=gl.getAttribLocation(sbx_shaderProgram, "position");
@@ -290,7 +290,7 @@ var sbx_makeShaderProgram= function(gl){
 
     /* create texture ID and set texture parameters */
     sbx_textureId=gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit); 
+    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit);
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -298,18 +298,18 @@ var sbx_makeShaderProgram= function(gl){
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     // gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
 
-    // SUCCESS 
+    // SUCCESS
     return sbx_shaderProgram;
 };
 
 var sbx_loadCubeFaceFromCanvas= function(gl, canvas, cubeFace){
-    /* use after  sbx_makeShaderProgram(gl) */ 
+    /* use after  sbx_makeShaderProgram(gl) */
     /* Parameters:
-      gl - WebGL context
-      canvas - container of the image
-      cubeFace - one of: gl.TEXTURE_CUBE_MAP_POSITIVE_X, ... 
+       gl - WebGL context
+       canvas - container of the image
+       cubeFace - one of: gl.TEXTURE_CUBE_MAP_POSITIVE_X, ...
     */
-    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit); 
+    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit);
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
     gl.texImage2D( cubeFace, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 };
@@ -318,17 +318,18 @@ var sbx_loadCubeFaceFromCanvas= function(gl, canvas, cubeFace){
 var sbx_drawSkybox= function ( gl, view, projection ) {
     /* use after drawing the scene */
     /* Parameters:
-      gl - WebGL context
-      view, projection - gl matrices 4x4 (column major)
-      textureUnit - integer from [0 ... gl.MAX_TEXTURE_IMAGE_UNITS]
-     */
-    gl.depthFunc(gl.LEQUAL);  
+       gl - WebGL context
+       view, projection - gl matrices 4x4 (column major)
+       textureUnit - integer from [0 ... gl.MAX_TEXTURE_IMAGE_UNITS]
+    */
+    gl.depthFunc(gl.LEQUAL);
 
-    gl.useProgram(sbx_shaderProgram);		
+    gl.useProgram(sbx_shaderProgram);
 
     gl.uniformMatrix4fv(sbx_view, false, view);
     gl.uniformMatrix4fv(sbx_projection, false, projection);
     
+    gl.enableVertexAttribArray(sbx_position);
     gl.bindBuffer(gl.ARRAY_BUFFER, sbx_arrayBuffer);
     gl.vertexAttribPointer(sbx_position, 3, gl.FLOAT, false, 0, 0);
 
@@ -336,7 +337,7 @@ var sbx_drawSkybox= function ( gl, view, projection ) {
     gl.uniform1i(sbx_skybox, sbx_textureUnit );
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
 
-  //  gl.drawArrays(gl.TRIANGLES, 0, sbx_Float32Array.length/3 );
+    //  gl.drawArrays(gl.TRIANGLES, 0, sbx_Float32Array.length/3 );
     gl.drawArrays(gl.TRIANGLES, 0, 36);
     gl.depthFunc(gl.LESS);
-}        
+}
