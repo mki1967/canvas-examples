@@ -1,0 +1,6 @@
+{
+  "name": "Canvas-examples",
+  "tagline": "some simple examples for html canvas",
+  "body": "# canvas-examples\r\n\r\nSome simple ad-hoc created examples for html canvas and webgl.\r\n",
+  "note": "Don't delete this file! It's used internally to help with page regeneration."
+}
