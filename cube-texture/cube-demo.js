@@ -27,7 +27,7 @@ var zMinusFloat32Array= new Float32Array( [
 	+1, -1, -1,
 	+1, -1, -1,
 	+1,  1, -1,
-        -1,  1, -1,
+        -1,  1, -1
 ]);
 var xMinusFloat32Array= new Float32Array( [
 	-1, -1,  1,
@@ -35,7 +35,7 @@ var xMinusFloat32Array= new Float32Array( [
         -1,  1, -1,
         -1,  1, -1,
         -1,  1,  1,
-        -1, -1,  1,
+        -1, -1,  1
 ]);
 var xPlusFloat32Array= new Float32Array( [
 	+1, -1, -1,
@@ -43,7 +43,7 @@ var xPlusFloat32Array= new Float32Array( [
 	+1,  1,  1,
 	+1,  1,  1,
 	+1,  1, -1,
-	+1, -1, -1,
+	+1, -1, -1
 ]);
 var zPlusFloat32Array= new Float32Array( [
         -1, -1,  1,
@@ -51,7 +51,7 @@ var zPlusFloat32Array= new Float32Array( [
 	+1,  1,  1,
 	+1,  1,  1,
 	+1, -1,  1,
-        -1, -1,  1,
+        -1, -1,  1
 ]);
 var yPlusFloat32Array= new Float32Array( [
         -1,  1, -1,
@@ -59,24 +59,24 @@ var yPlusFloat32Array= new Float32Array( [
 	+1,  1,  1,
 	+1,  1,  1,
         -1,  1,  1,
-        -1,  1, -1,
+        -1,  1, -1
 ]);
 var yMinusFloat32Array= new Float32Array( [
         -1, -1, -1,
-        -1, -1,  1,
-	+1, -1, -1,
-	+1, -1, -1,
-        -1, -1,  1,
-	+1, -1,  1
+        -1, -1, +1,
+	+1, -1, +1,
+	+1, -1, +1,
+        +1, -1, -1,
+	-1, -1, -1
 ]);
 
 var texCoordsFloat32Array=	new Float32Array([
-    0.0,  0.0,
-    1.0,  0.0,
-    0.0,  1.0,
-    0.0,  1.0,
-    1.0,  0.0,
-    1.0,  1.0
+    0,  0,
+    1,  0,
+    1,  1,
+    1,  1,
+    0,  1,
+    0,  0
 ]);
 
 
@@ -204,7 +204,7 @@ var drawBuffer= function ( gl, rotation, move, projection, buffer, vertexNumber,
 
     gl.enableVertexAttribArray(aTexCoordsLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsBuffer);
-    gl.vertexAttribPointer(aTexCoordsLocation, 3, gl.FLOAT, false, 0, 0);
+    gl.vertexAttribPointer(aTexCoordsLocation, 2, gl.FLOAT, false, 0, 0);
 
     gl.activeTexture(gl.TEXTURE0+textureUnit );
     gl.uniform1i(tex2DLocation, textureUnit );
@@ -262,6 +262,10 @@ const identityMatrix4= [
 ];
 
 
+var rotationMatrix4= identityMatrix4;
+
+var moveVector=[0,0,10];
+
 
 
 var createProjectionMatrix4= function (gl, zNear, zFar, zoomY ) {
@@ -318,6 +322,52 @@ var glMatrix4FromMatrix= function( m ) {
     );
 };
 
+
+var scalarProduct4 = function( v,w ) {
+    return v[0]*w[0]+v[1]*w[1]+v[2]*w[2]+v[3]*w[3];
+};
+
+var matrix4Column = function( m, c ) {
+    return [ m[0][c], m[1][c], m[2][c], m[3][c] ]; 
+};
+
+var matrix4Product = function( m1, m2){ 
+    var sp = scalarProduct4;
+    var col = matrix4Column;
+    return [ 
+	[ sp(m1[0], col(m2, 0)) , sp(m1[0], col(m2, 1)),  sp(m1[0], col(m2, 2)),  sp(m1[0], col(m2, 3)) ], 
+	[ sp(m1[1], col(m2, 0)) , sp(m1[1], col(m2, 1)),  sp(m1[1], col(m2, 2)),  sp(m1[1], col(m2, 3)) ], 
+	[ sp(m1[2], col(m2, 0)) , sp(m1[2], col(m2, 1)),  sp(m1[2], col(m2, 2)),  sp(m1[1], col(m2, 3)) ], 
+	[ sp(m1[3], col(m2, 0)) , sp(m1[3], col(m2, 1)),  sp(m1[3], col(m2, 2)),  sp(m1[3], col(m2, 3)) ] 
+    ];
+};
+
+var matrix4RotatedXZ= function(matrix, alpha ){
+    var c = Math.cos( alpha );
+    var s = Math.sin( alpha ); 
+    var rot = [ [ c,  0, -s, 0 ],
+		[ 0,  1,  0, 0 ],
+		[ s,  0,  c, 0 ],
+		[ 0,  0,  0, 1 ]
+	      ];
+
+    return matrix4Product( rot, matrix );
+};
+
+var matrix4RotatedYZ= function(matrix, alpha ){
+    var c = Math.cos( alpha );
+    var s = Math.sin( alpha ); 
+    var rot = [ [ 1,  0,  0, 0 ],
+		[ 0,  c, -s, 0 ],
+		[ 0,  s,  c, 0 ], 
+		[ 0,  0,  0, 1 ]
+	      ];
+
+    return matrix4Product( rot, matrix );
+};
+
+
+
 /* redraw variables */
 
 var boxFaceTextures=[];
@@ -328,9 +378,7 @@ var redraw=function(){
 								      PROJECTION_Z_FAR,
 								      PROJECTION_ZOOM_Y )
 					    );
-    var rotationMatrix=glMatrix4FromMatrix( identityMatrix4 ); //tmp
-
-    var moveVector=[0,0,2];
+    var rotationMatrix=glMatrix4FromMatrix( rotationMatrix4 ); //tmp
 
     gl.enable(gl.DEPTH_TEST);
 
@@ -339,7 +387,19 @@ var redraw=function(){
 
 
     drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   zPlusArrayBuffer, 6, boxFaceTextures[0] , 5 ) 
+			   xPlusArrayBuffer, 6, boxFaceTextures[0] , 5 ) 
+    drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
+			   xMinusArrayBuffer, 6, boxFaceTextures[1] , 5 ) 
+
+    drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
+			   yPlusArrayBuffer, 6, boxFaceTextures[2] , 5 ) 
+    drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
+			   yMinusArrayBuffer, 6, boxFaceTextures[3] , 5 ) 
+
+    drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
+			   zPlusArrayBuffer, 6, boxFaceTextures[4] , 5 ) 
+    drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
+			   zMinusArrayBuffer, 6, boxFaceTextures[5] , 5 ) 
 
     sbx_drawSkybox ( gl, 
 		     rotationMatrix,
@@ -358,38 +418,40 @@ onWindowResize = function () {
     redraw();
 };
 
+
+
+
 function onKeyDown(e){
-
-    stopIntervalAction();
-
     // var code=e.keyCode? e.keyCode : e.charCode;
     var code= e.which || e.keyCode;
+    var alpha= Math.PI/32;
     switch(code)
     {
     case 38: // up
     case 73: // I
-	up();
+	rotationMatrix4=matrix4RotatedYZ(rotationMatrix4, alpha );
 	break;
     case 40: // down
     case 75: // K
-	down();
+	rotationMatrix4=matrix4RotatedYZ(rotationMatrix4, -alpha );
 	break;
     case 37: // left
     case 74:// J
-	left();
+	rotationMatrix4=matrix4RotatedXZ(rotationMatrix4, -alpha );
 	break;
     case 39:// right
     case 76: // L
-	right();
+	rotationMatrix4=matrix4RotatedXZ(rotationMatrix4, alpha );
 	break;
     case 70: // F
-	forward();
+	moveVector[2]++;
 	break;
     case 66: // B
     case 86: // V
-	back();
+	moveVector[2]--;
 	break;
     case 32: // space
+	rotationMatrix4= identityMatrix4;
 	break;
 	/*
 	  case 77: // M
@@ -413,6 +475,7 @@ function onKeyDown(e){
 	  break;
 	*/
     }
+    redraw();
 }
 
 
