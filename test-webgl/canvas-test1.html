@@ -1,0 +1,29 @@
+<!DOCTYPE html > 
+<html id="htmlId" style="overflow: hidden;">
+  <body>
+    <div id="divCanvas" style="position: relative;">
+      <canvas id="canvasId" style="border:0px; margin: 0px; padding: 0px;" >
+        Your browser does not support the canvas element.
+      </canvas>
+      <div id="divUpperMessage" style="position: absolute; top: 0px; left: 0px; color: black; background-color: white;">
+        BUTTONS:
+        <button type="button1" id="button1"> BUTTON 1</button> 
+      </div> 
+    </div>
+    <script id="vs1" type="x-shader/x-vertex">
+      attribute vec2 a_position;
+      void main() {
+      gl_Position = vec4(a_position, 0, 1);
+      }
+    </script>
+    <!-- fragment shader -->
+    <script id="fs1" type="x-shader/x-fragment">
+      void main() {
+      gl_FragColor = vec4(0,1,0,1);  // green
+      }
+    </script>
+    <script id="js1" src="canvas-test1.js">
+
+    </script>
+  </body>
+</html>

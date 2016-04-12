@@ -1,0 +1,38 @@
+<!DOCTYPE html >
+<html id="htmlId">
+  <body>
+    <p id="message"> Skybox </p>
+    <table border="0">
+      <tr>
+	<td></td>
+	<td><canvas id="canvasYMinus" width="256" height="256"></canvas></td>
+	<td></td>
+	<td></td>
+      </tr>
+      <tr>
+	<td><canvas id="canvasXMinus" width="256" height="256"></canvas></td>
+	<td><canvas id="canvasZPlus" width="256" height="256"></canvas></td>
+	<td><canvas id="canvasXPlus" width="256" height="256"></canvas></td>
+	<td><canvas id="canvasZMinus" width="256" height="256"></canvas></td>
+      </tr>
+      <tr>
+	<td></td>
+	<td><canvas id="canvasYPlus" width="256" height="256"></canvas></td>
+	<td></td>
+	<td></td>
+      </tr>
+    </table>
+    <!--
+	<div id="divSkybox">
+	  <canvas id="canvasZMinus" width="512" height="512" style="border:0px; margin: 0px; padding: 0px;" >
+	  </canvas>
+	  <canvas id="canvasZPlus" width="512" height="512" style="border:0px; margin: 0px; padding: 0px;" >
+	  </canvas>
+	</div>
+	-->
+    <script src="skybox_utils.js">
+    </script>
+    <script src="cube-tex-1.js">
+    </script>
+  </body>
+</html>
