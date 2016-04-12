@@ -21,62 +21,50 @@ var skybox=null;
 
 
 /* input vertices of cube triangles */
-var zMinusFloat32Array= new Float32Array( [
-	-1,  1, -1,
-	-1, -1, -1,
-	+1, -1, -1,
-	+1, -1, -1,
-	+1,  1, -1,
-        -1,  1, -1
-]);
-var xMinusFloat32Array= new Float32Array( [
-	-1, -1,  1,
-        -1, -1, -1,
-        -1,  1, -1,
-        -1,  1, -1,
-        -1,  1,  1,
-        -1, -1,  1
-]);
 var xPlusFloat32Array= new Float32Array( [
 	+1, -1, -1,
-	+1, -1,  1,
-	+1,  1,  1,
-	+1,  1,  1,
-	+1,  1, -1,
-	+1, -1, -1
+	+1, -1, +1,
+	+1, +1, +1,
+	+1, +1, -1,
 ]);
+var xMinusFloat32Array= new Float32Array( [
+	-1, -1, -1,
+        -1, -1, +1,
+        -1, +1, +1,
+        -1, +1, -1,
+]);
+
 var zPlusFloat32Array= new Float32Array( [
         -1, -1,  1,
-        -1,  1,  1,
-	+1,  1,  1,
-	+1,  1,  1,
+        -1, +1,  1,
+	+1, +1,  1,
 	+1, -1,  1,
-        -1, -1,  1
 ]);
+var zMinusFloat32Array= new Float32Array( [
+	-1, -1, -1,
+	-1, +1, -1,
+	+1, +1, -1,
+	+1, -1, -1,
+]);
+
 var yPlusFloat32Array= new Float32Array( [
         -1,  1, -1,
-	+1,  1, -1,
-	+1,  1,  1,
-	+1,  1,  1,
-        -1,  1,  1,
-        -1,  1, -1
+	-1,  1, +1,
+	+1,  1, +1,
+        +1,  1, -1,
 ]);
 var yMinusFloat32Array= new Float32Array( [
         -1, -1, -1,
         -1, -1, +1,
 	+1, -1, +1,
-	+1, -1, +1,
         +1, -1, -1,
-	-1, -1, -1
 ]);
 
 var texCoordsFloat32Array=	new Float32Array([
     0,  0,
-    1,  0,
-    1,  1,
-    1,  1,
     0,  1,
-    0,  0
+    1,  1,
+    1,  0,
 ]);
 
 
@@ -184,7 +172,7 @@ var makeShaderProgram= function(gl){
     return shaderProgram;
 };
 
-var drawBuffer= function ( gl, rotation, move, projection, buffer, vertexNumber, textureId, textureUnit ) {
+var drawBufferFace= function ( gl, rotation, move, projection, buffer, textureId, textureUnit ) {
     /* Parameters:
        gl - WebGL context
        view, projection - gl matrices 4x4 (column major)
@@ -210,7 +198,7 @@ var drawBuffer= function ( gl, rotation, move, projection, buffer, vertexNumber,
     gl.uniform1i(tex2DLocation, textureUnit );
     gl.bindTexture(gl.TEXTURE_2D, textureId);
 
-    gl.drawArrays(gl.TRIANGLES, 0, vertexNumber);
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 }
 
 var createTexture2D= function(gl){
@@ -386,20 +374,20 @@ var redraw=function(){
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 
-    drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   xPlusArrayBuffer, 6, boxFaceTextures[0] , 5 ) 
-    drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   xMinusArrayBuffer, 6, boxFaceTextures[1] , 5 ) 
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
+			   xPlusArrayBuffer,  boxFaceTextures[0] , 1 ) 
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
+			   xMinusArrayBuffer,  boxFaceTextures[1] , 2 ) 
 
-    drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   yPlusArrayBuffer, 6, boxFaceTextures[2] , 5 ) 
-    drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   yMinusArrayBuffer, 6, boxFaceTextures[3] , 5 ) 
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
+			   yPlusArrayBuffer,  boxFaceTextures[2] , 3 ) 
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
+			   yMinusArrayBuffer,  boxFaceTextures[3] , 4 ) 
 
-    drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   zPlusArrayBuffer, 6, boxFaceTextures[4] , 5 ) 
-    drawBuffer( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   zMinusArrayBuffer, 6, boxFaceTextures[5] , 5 ) 
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
+			   zPlusArrayBuffer,  boxFaceTextures[4] , 5 ) 
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
+			   zMinusArrayBuffer,  boxFaceTextures[5] , 6 ) 
 
     sbx_drawSkybox ( gl, 
 		     rotationMatrix,
