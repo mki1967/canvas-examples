@@ -22,16 +22,29 @@ var skybox=null;
 
 /* input vertices of cube triangles */
 var xPlusFloat32Array= new Float32Array( [
-	+1, -1, -1,
 	+1, -1, +1,
 	+1, +1, +1,
 	+1, +1, -1,
+	+1, -1, -1,
 ]);
 var xMinusFloat32Array= new Float32Array( [
 	-1, -1, -1,
-        -1, -1, +1,
-        -1, +1, +1,
         -1, +1, -1,
+        -1, +1, +1,
+        -1, -1, +1,
+]);
+
+var yPlusFloat32Array= new Float32Array( [
+        -1,  1, +1,
+	-1,  1, -1,
+	+1,  1, -1,
+        +1,  1, +1,
+]);
+var yMinusFloat32Array= new Float32Array( [
+        -1, -1, -1,
+        -1, -1, +1,
+	+1, -1, +1,
+        +1, -1, -1,
 ]);
 
 var zPlusFloat32Array= new Float32Array( [
@@ -41,23 +54,10 @@ var zPlusFloat32Array= new Float32Array( [
 	+1, -1,  1,
 ]);
 var zMinusFloat32Array= new Float32Array( [
-	-1, -1, -1,
-	-1, +1, -1,
-	+1, +1, -1,
 	+1, -1, -1,
-]);
-
-var yPlusFloat32Array= new Float32Array( [
-        -1,  1, -1,
-	-1,  1, +1,
-	+1,  1, +1,
-        +1,  1, -1,
-]);
-var yMinusFloat32Array= new Float32Array( [
-        -1, -1, -1,
-        -1, -1, +1,
-	+1, -1, +1,
-        +1, -1, -1,
+	+1, +1, -1,
+	-1, +1, -1,
+	-1, -1, -1,
 ]);
 
 var texCoordsFloat32Array=	new Float32Array([
@@ -380,9 +380,9 @@ var redraw=function(){
 			   xMinusArrayBuffer,  boxFaceTextures[1] , 2 ) 
 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   yPlusArrayBuffer,  boxFaceTextures[2] , 3 ) 
+			   yPlusArrayBuffer,  boxFaceTextures[3] , 3 ) 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   yMinusArrayBuffer,  boxFaceTextures[3] , 4 ) 
+			   yMinusArrayBuffer,  boxFaceTextures[2] , 4 ) 
 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
 			   zPlusArrayBuffer,  boxFaceTextures[4] , 5 ) 
