@@ -97,6 +97,7 @@ var texVertexShaderSrc=""+
     "varying vec2 TexCoords;\n"+
     "void main()\n"+
     "{\n"+
+    "    gl_position = aPosition;\n"+
     "    TexCoords = aTexCoords;\n"+
     "}\n";
 
@@ -144,6 +145,20 @@ var makeShaderProgram= function(gl, vertexShaderSource, fragmentShaderSource){
 };
 
 
+var drawTexture= function ( gl, rotation, move, projection, buffer, textureId, textureUnit ) {
+
+
+    gl.useProgram(texShaderProgram);
+
+      gl.enableVertexAttribArray(aTexCoordsLocation);
+      gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsBuffer);
+      gl.vertexAttribPointer(aTexCoordsLocation, 2, gl.FLOAT, false, 0, 0);
+
+      gl.activeTexture(gl.TEXTURE0+textureUnit );
+      gl.uniform1i(tex2DLocation, textureUnit );
+      gl.bindTexture(gl.TEXTURE_2D, textureId);
+   
+}
 
 var drawBufferFace= function ( gl, rotation, move, projection, buffer, textureId, textureUnit ) {
     /* Parameters:
@@ -370,13 +385,12 @@ var redraw=function(){
     gl.stencilFunc(gl.ALWAYS, 6, 255); 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
 		    zMinusArrayBuffer,  boxFaceTextures[5] , 6 ); 
+
     gl.stencilMask(0); // disable modification of stencil buffer
-    /*
-      sbx_drawSkybox ( gl, 
-      rotationMatrix,
-      projectionMatrix
-      );
-    */
+    gl.disable(gl.DEPTH_TEST);
+
+    gl.enable(gl.DEPTH_TEST);
+
 }
 
 onWindowResize = function () {
@@ -472,17 +486,20 @@ window.onload= function(){
     shaderProgram=makeShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
     texShaderProgram=makeShaderProgram(gl, texVertexShaderSrc, texFragmentShaderSrc);
  
-    gl.useProgram(shaderProgram);
+   // gl.useProgram(shaderProgram);
 
     /* set vertex attributes locations */
     aPositionLocation=gl.getAttribLocation(shaderProgram, "aPosition");
-    aTexCoordsLocation=gl.getAttribLocation(shaderProgram, "aTexCoords");
+
+    aTexPositionLocation=gl.getAttribLocation(texShaderProgram, "aPosition");
+    aTexCoordsLocation=gl.getAttribLocation(texShaderProgram, "aTexCoords");
 
     /* set uniform variables locations */
     projectionLocation=gl.getUniformLocation(shaderProgram, "projection");
     rotationLocation=gl.getUniformLocation(shaderProgram, "rotation");
     moveLocation=gl.getUniformLocation(shaderProgram, "move");
-    tex2DLocation=gl.getUniformLocation(shaderProgram, "tex2D");
+
+    tex2DLocation=gl.getUniformLocation(texShaderProgram, "tex2D");
 
     /* load  data buffers */
     zMinusArrayBuffer= gl.createBuffer();
