@@ -161,15 +161,15 @@ var drawBufferFace= function ( gl, rotation, move, projection, buffer, textureId
     gl.enableVertexAttribArray(aPositionLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.vertexAttribPointer(aPositionLocation, 3, gl.FLOAT, false, 0, 0);
+    /*
+      gl.enableVertexAttribArray(aTexCoordsLocation);
+      gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsBuffer);
+      gl.vertexAttribPointer(aTexCoordsLocation, 2, gl.FLOAT, false, 0, 0);
 
-    gl.enableVertexAttribArray(aTexCoordsLocation);
-    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsBuffer);
-    gl.vertexAttribPointer(aTexCoordsLocation, 2, gl.FLOAT, false, 0, 0);
-
-    gl.activeTexture(gl.TEXTURE0+textureUnit );
-    gl.uniform1i(tex2DLocation, textureUnit );
-    gl.bindTexture(gl.TEXTURE_2D, textureId);
-
+      gl.activeTexture(gl.TEXTURE0+textureUnit );
+      gl.uniform1i(tex2DLocation, textureUnit );
+      gl.bindTexture(gl.TEXTURE_2D, textureId);
+    */
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 }
 
@@ -339,31 +339,43 @@ var redraw=function(){
     var rotationMatrix=glMatrix4FromMatrix( rotationMatrix4 ); //tmp
 
     gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.STENCIL_TEST); //
 
+    gl.clearStencil(0);
     gl.clearColor(0, 0, 0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT );
 
+    gl.stencilOp(gl.KEEP, gl.KEEP, gl.REPLACE );
 
-    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   xPlusArrayBuffer,  boxFaceTextures[0] , 1 ) 
-    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   xMinusArrayBuffer,  boxFaceTextures[1] , 2 ) 
+    gl.stencilMask(255); // enable modification of stencil buffer
 
+    gl.stencilFunc(gl.ALWAYS, 1, 255); 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   yPlusArrayBuffer,  boxFaceTextures[2] , 3 ) 
+		    xPlusArrayBuffer,  boxFaceTextures[0] , 1 ); 
+    gl.stencilFunc(gl.ALWAYS, 2, 255); 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   yMinusArrayBuffer,  boxFaceTextures[3] , 4 ) 
+		    xMinusArrayBuffer,  boxFaceTextures[1] , 2 ); 
 
+    gl.stencilFunc(gl.ALWAYS, 3, 255); 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   zPlusArrayBuffer,  boxFaceTextures[4] , 5 ) 
+		    yPlusArrayBuffer,  boxFaceTextures[2] , 3 ); 
+    gl.stencilFunc(gl.ALWAYS, 4, 255); 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   zMinusArrayBuffer,  boxFaceTextures[5] , 6 ) 
-/*
-    sbx_drawSkybox ( gl, 
-		     rotationMatrix,
-		     projectionMatrix
-		   );
-*/
+		    yMinusArrayBuffer,  boxFaceTextures[3] , 4 ); 
+
+    gl.stencilFunc(gl.ALWAYS, 5, 255); 
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
+		    zPlusArrayBuffer,  boxFaceTextures[4] , 5 ); 
+    gl.stencilFunc(gl.ALWAYS, 6, 255); 
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
+		    zMinusArrayBuffer,  boxFaceTextures[5] , 6 ); 
+    gl.stencilMask(0); // disable modification of stencil buffer
+    /*
+      sbx_drawSkybox ( gl, 
+      rotationMatrix,
+      projectionMatrix
+      );
+    */
 }
 
 onWindowResize = function () {
