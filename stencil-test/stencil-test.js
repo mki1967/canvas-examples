@@ -3,10 +3,6 @@ var html=null;
 var gl=null;
 
 
-
-/* shaders */
-var vertexShader=null;
-var fragmentShader=null;
 /* shader program */
 var shaderProgram=null;
 var texShaderProgram=null;
@@ -61,15 +57,6 @@ var zMinusFloat32Array= new Float32Array( [
 	-1, +1, -1,
 ]);
 
-var texCoordsFloat32Array=	new Float32Array([
-    0,  0,
-    0,  1,
-    1,  1,
-    1,  0,
-]);
-
-
-var arrayBuffer=null;
 
 
 var vertexShaderSource=""+
@@ -93,12 +80,11 @@ var fragmentShaderSource=""+
 
 var texVertexShaderSrc=""+
     "attribute vec3 aPosition;\n"+
-    "attribute vec2 aTexCoords;\n"+
     "varying vec2 TexCoords;\n"+
     "void main()\n"+
     "{\n"+
-    "    gl_position = aPosition;\n"+
-    "    TexCoords = aTexCoords;\n"+
+    "    gl_Position = vec4(aPosition,1.0);\n"+
+    "    TexCoords = aPosition.xy*10.0;\n"+
     "}\n";
 
 var texFragmentShaderSrc=""+
@@ -150,14 +136,15 @@ var drawTexture= function ( gl, rotation, move, projection, buffer, textureId, t
 
     gl.useProgram(texShaderProgram);
 
-      gl.enableVertexAttribArray(aTexCoordsLocation);
-      gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsBuffer);
-      gl.vertexAttribPointer(aTexCoordsLocation, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(aPositionLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.vertexAttribPointer(aPositionLocation, 3, gl.FLOAT, false, 0, 0);
 
-      gl.activeTexture(gl.TEXTURE0+textureUnit );
-      gl.uniform1i(tex2DLocation, textureUnit );
-      gl.bindTexture(gl.TEXTURE_2D, textureId);
-   
+    gl.activeTexture(gl.TEXTURE0+textureUnit );
+    gl.uniform1i(tex2DLocation, textureUnit );
+    gl.bindTexture(gl.TEXTURE_2D, textureId);
+    
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 }
 
 var drawBufferFace= function ( gl, rotation, move, projection, buffer, textureId, textureUnit ) {
@@ -177,15 +164,6 @@ var drawBufferFace= function ( gl, rotation, move, projection, buffer, textureId
     gl.enableVertexAttribArray(aPositionLocation);
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.vertexAttribPointer(aPositionLocation, 3, gl.FLOAT, false, 0, 0);
-    /*
-      gl.enableVertexAttribArray(aTexCoordsLocation);
-      gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsBuffer);
-      gl.vertexAttribPointer(aTexCoordsLocation, 2, gl.FLOAT, false, 0, 0);
-
-      gl.activeTexture(gl.TEXTURE0+textureUnit );
-      gl.uniform1i(tex2DLocation, textureUnit );
-      gl.bindTexture(gl.TEXTURE_2D, textureId);
-    */
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 }
 
@@ -198,9 +176,9 @@ var createTexture2D= function(gl){
     // gl.activeTexture(gl.TEXTURE0+textureUnit);
     gl.bindTexture(gl.TEXTURE_2D, textureId);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
     return textureId;
 }
 
@@ -216,6 +194,7 @@ var loadTexture2DFromImg= function(gl, img, textureId){
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); 
     gl.bindTexture(gl.TEXTURE_2D, textureId);
     gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+    gl.generateMipmap( gl.TEXTURE_2D );
 };
 
 
@@ -389,6 +368,27 @@ var redraw=function(){
     gl.stencilMask(0); // disable modification of stencil buffer
     gl.disable(gl.DEPTH_TEST);
 
+    gl.stencilFunc(gl.EQUAL, 1, 255); 
+    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
+		 zPlusArrayBuffer,  boxFaceTextures[0] , 1 ); 
+    gl.stencilFunc(gl.EQUAL, 2, 255); 
+    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
+		 zMinusArrayBuffer,  boxFaceTextures[1] , 2 ); 
+
+    gl.stencilFunc(gl.EQUAL, 3, 255); 
+    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
+		 zPlusArrayBuffer,  boxFaceTextures[2] , 3 ); 
+    gl.stencilFunc(gl.EQUAL, 4, 255); 
+    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
+		 zMinusArrayBuffer,  boxFaceTextures[3] , 4 ); 
+
+    gl.stencilFunc(gl.EQUAL, 5, 255); 
+    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
+		 zPlusArrayBuffer,  boxFaceTextures[4] , 5 ); 
+    gl.stencilFunc(gl.EQUAL, 6, 255); 
+    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
+		 zMinusArrayBuffer,  boxFaceTextures[5] , 6 ); 
+
     gl.enable(gl.DEPTH_TEST);
 
 }
@@ -411,23 +411,32 @@ function onKeyDown(e){
     // var code=e.keyCode? e.keyCode : e.charCode;
     var code= e.which || e.keyCode;
     var alpha= Math.PI/32;
+    var moveStep= 1/8;
     switch(code)
     {
     case 38: // up
-    case 73: // I
 	rotationMatrix4=matrix4RotatedYZ(rotationMatrix4, alpha );
 	break;
+    case 73: // I
+	moveVector[1]+=moveStep;
+	break;
     case 40: // down
-    case 75: // K
 	rotationMatrix4=matrix4RotatedYZ(rotationMatrix4, -alpha );
 	break;
+    case 75: // K
+	moveVector[1]-=moveStep;
+	break;
     case 37: // left
-    case 74:// J
 	rotationMatrix4=matrix4RotatedXZ(rotationMatrix4, -alpha );
 	break;
+    case 74:// J
+	moveVector[0]-=moveStep;
+	break;
     case 39:// right
-    case 76: // L
 	rotationMatrix4=matrix4RotatedXZ(rotationMatrix4, alpha );
+	break;
+    case 76: // L
+	moveVector[0]+=moveStep;
 	break;
     case 70: // F
 	moveVector[2]++;
@@ -471,7 +480,7 @@ window.onload= function(){
     html={};
     html.canvasGL=document.querySelector('#canvasGL');
     html.canvasTex=document.querySelector('#canvasTex');
-    gl = canvasGL.getContext("webgl", { stencil: true });
+    gl = canvasGL.getContext("webgl", { stencil: true }); ///
 
     html.img=[
 	document.querySelector('#xPlus'),
@@ -485,8 +494,8 @@ window.onload= function(){
 
     shaderProgram=makeShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
     texShaderProgram=makeShaderProgram(gl, texVertexShaderSrc, texFragmentShaderSrc);
- 
-   // gl.useProgram(shaderProgram);
+    
+    // gl.useProgram(shaderProgram);
 
     /* set vertex attributes locations */
     aPositionLocation=gl.getAttribLocation(shaderProgram, "aPosition");
@@ -525,10 +534,6 @@ window.onload= function(){
     yPlusArrayBuffer= gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, yPlusArrayBuffer );
     gl.bufferData(gl.ARRAY_BUFFER, yPlusFloat32Array , gl.STATIC_DRAW );
-
-    texCoordsBuffer= gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsBuffer );
-    gl.bufferData(gl.ARRAY_BUFFER, texCoordsFloat32Array , gl.STATIC_DRAW );
 
     boxFaceTextures=[];
     for(var step=0; step<6; step++ ){
