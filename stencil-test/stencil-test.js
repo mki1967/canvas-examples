@@ -9,6 +9,7 @@ var vertexShader=null;
 var fragmentShader=null;
 /* shader program */
 var shaderProgram=null;
+var texShaderProgram=null;
 
 /* vertex attributes locations */
 var position=null;
@@ -113,7 +114,7 @@ var makeShaderProgram= function(gl, vertexShaderSource, fragmentShaderSource){
        gl - WebGL context
     */
 
-    vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    var vertexShader = gl.createShader(gl.VERTEX_SHADER);
     gl.shaderSource(vertexShader, vertexShaderSource);
     gl.compileShader(vertexShader);
     if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
@@ -121,7 +122,7 @@ var makeShaderProgram= function(gl, vertexShaderSource, fragmentShaderSource){
 	return null;
     }
 
-    fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
     gl.shaderSource(fragmentShader, fragmentShaderSource);
     gl.compileShader(fragmentShader);
     if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
@@ -129,7 +130,7 @@ var makeShaderProgram= function(gl, vertexShaderSource, fragmentShaderSource){
 	return null;
     }
 
-    shaderProgram = gl.createProgram();
+    var shaderProgram = gl.createProgram();
     gl.attachShader(shaderProgram, vertexShader);
     gl.attachShader(shaderProgram, fragmentShader);
     gl.linkProgram(shaderProgram);
@@ -469,7 +470,8 @@ window.onload= function(){
 
 
     shaderProgram=makeShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
-
+    texShaderProgram=makeShaderProgram(gl, texVertexShaderSrc, texFragmentShaderSrc);
+ 
     gl.useProgram(shaderProgram);
 
     /* set vertex attributes locations */
