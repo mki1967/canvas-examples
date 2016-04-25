@@ -74,6 +74,7 @@ var fragmentShaderSource=""+
     "precision mediump float;\n"+
     "void main()\n"+
     "{\n"+
+    /* red color - shows areas modified in stencil buffer */
     "    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"+
     "}\n";
 
@@ -84,7 +85,7 @@ var texVertexShaderSrc=""+
     "void main()\n"+
     "{\n"+
     "    gl_Position = vec4(aPosition,1.0);\n"+
-    "    TexCoords = aPosition.xy*10.0;\n"+
+    "    TexCoords = aPosition.xy*10.0;\n"+ //// scaling by 10.0 
     "}\n";
 
 var texFragmentShaderSrc=""+
@@ -131,7 +132,7 @@ var makeShaderProgram= function(gl, vertexShaderSource, fragmentShaderSource){
 };
 
 
-var drawTexture= function ( gl, rotation, move, projection, buffer, textureId, textureUnit ) {
+var drawTexture= function ( gl,  buffer, textureId, textureUnit ) {
 
 
     gl.useProgram(texShaderProgram);
@@ -147,7 +148,7 @@ var drawTexture= function ( gl, rotation, move, projection, buffer, textureId, t
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 }
 
-var drawBufferFace= function ( gl, rotation, move, projection, buffer, textureId, textureUnit ) {
+var drawBufferFace= function ( gl, rotation, move, projection, buffer) {
     /* Parameters:
        gl - WebGL context
        view, projection - gl matrices 4x4 (column major)
@@ -194,7 +195,7 @@ var loadTexture2DFromImg= function(gl, img, textureId){
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); 
     gl.bindTexture(gl.TEXTURE_2D, textureId);
     gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-    gl.generateMipmap( gl.TEXTURE_2D );
+    gl.generateMipmap( gl.TEXTURE_2D ); /// 
 };
 
 
@@ -346,48 +347,42 @@ var redraw=function(){
 
     gl.stencilFunc(gl.ALWAYS, 1, 255); 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-		    xPlusArrayBuffer,  boxFaceTextures[0] , 1 ); 
+		    xPlusArrayBuffer); 
     gl.stencilFunc(gl.ALWAYS, 2, 255); 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-		    xMinusArrayBuffer,  boxFaceTextures[1] , 2 ); 
+		    xMinusArrayBuffer); 
 
     gl.stencilFunc(gl.ALWAYS, 3, 255); 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-		    yPlusArrayBuffer,  boxFaceTextures[2] , 3 ); 
+		    yPlusArrayBuffer); 
     gl.stencilFunc(gl.ALWAYS, 4, 255); 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-		    yMinusArrayBuffer,  boxFaceTextures[3] , 4 ); 
+		    yMinusArrayBuffer); 
 
     gl.stencilFunc(gl.ALWAYS, 5, 255); 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-		    zPlusArrayBuffer,  boxFaceTextures[4] , 5 ); 
+		    zPlusArrayBuffer); 
     gl.stencilFunc(gl.ALWAYS, 6, 255); 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-		    zMinusArrayBuffer,  boxFaceTextures[5] , 6 ); 
+		    zMinusArrayBuffer); 
 
     gl.stencilMask(0); // disable modification of stencil buffer
     gl.disable(gl.DEPTH_TEST);
 
     gl.stencilFunc(gl.EQUAL, 1, 255); 
-    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
-		 zPlusArrayBuffer,  boxFaceTextures[0] , 1 ); 
+    drawTexture( gl, zPlusArrayBuffer,  boxFaceTextures[0] , 1 ); 
     gl.stencilFunc(gl.EQUAL, 2, 255); 
-    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
-		 zMinusArrayBuffer,  boxFaceTextures[1] , 2 ); 
+    drawTexture( gl, zMinusArrayBuffer,  boxFaceTextures[1] , 2 ); 
 
     gl.stencilFunc(gl.EQUAL, 3, 255); 
-    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
-		 zPlusArrayBuffer,  boxFaceTextures[2] , 3 ); 
+    drawTexture( gl, zPlusArrayBuffer,  boxFaceTextures[2] , 3 ); 
     gl.stencilFunc(gl.EQUAL, 4, 255); 
-    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
-		 zMinusArrayBuffer,  boxFaceTextures[3] , 4 ); 
+    drawTexture( gl, zMinusArrayBuffer,  boxFaceTextures[3] , 4 ); 
 
     gl.stencilFunc(gl.EQUAL, 5, 255); 
-    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
-		 zPlusArrayBuffer,  boxFaceTextures[4] , 5 ); 
+    drawTexture( gl, zPlusArrayBuffer,  boxFaceTextures[4] , 5 ); 
     gl.stencilFunc(gl.EQUAL, 6, 255); 
-    drawTexture( gl, rotationMatrix, moveVector, projectionMatrix, 
-		 zMinusArrayBuffer,  boxFaceTextures[5] , 6 ); 
+    drawTexture( gl, zMinusArrayBuffer,  boxFaceTextures[5] , 6 ); 
 
     gl.enable(gl.DEPTH_TEST);
 
