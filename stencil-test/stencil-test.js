@@ -1,5 +1,4 @@
 
-var html=null;
 var gl=null;
 
 
@@ -75,7 +74,7 @@ var fragmentShaderSource=""+
     "void main()\n"+
     "{\n"+
     /* red color - shows areas modified in stencil buffer */
-    "    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"+
+"    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"+
     "}\n";
 
 
@@ -391,8 +390,8 @@ var redraw=function(){
 onWindowResize = function () {
     var wth = parseInt(window.innerWidth)-10;
     var hth = parseInt(window.innerHeight)-10;
-    canvasGL.setAttribute("width", ''+wth);
-    canvasGL.setAttribute("height", ''+hth);
+    gl.canvas.setAttribute("width", ''+wth);
+    gl.canvas.setAttribute("height", ''+hth);
     gl.viewportWidth = wth;
     gl.viewportHeight = hth;
     gl.viewport(0,0,wth,hth);
@@ -472,12 +471,10 @@ function onKeyDown(e){
 
 
 window.onload= function(){
-    html={};
-    html.canvasGL=document.querySelector('#canvasGL');
-    html.canvasTex=document.querySelector('#canvasTex');
+    var  canvasGL=document.querySelector('#canvasGL');
     gl = canvasGL.getContext("webgl", { stencil: true }); ///
 
-    html.img=[
+    var img=[
 	document.querySelector('#xPlus'),
 	document.querySelector('#xMinus'),
 	document.querySelector('#yPlus'),
@@ -490,8 +487,6 @@ window.onload= function(){
     shaderProgram=makeShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
     texShaderProgram=makeShaderProgram(gl, texVertexShaderSrc, texFragmentShaderSrc);
     
-    // gl.useProgram(shaderProgram);
-
     /* set vertex attributes locations */
     aPositionLocation=gl.getAttribLocation(shaderProgram, "aPosition");
 
@@ -533,7 +528,7 @@ window.onload= function(){
     boxFaceTextures=[];
     for(var step=0; step<6; step++ ){
 	boxFaceTextures.push( createTexture2D(gl) );
-	loadTexture2DFromImg(gl, html.img[step], boxFaceTextures[boxFaceTextures.length-1]);
+	loadTexture2DFromImg(gl, img[step], boxFaceTextures[boxFaceTextures.length-1]);
     }
 
     onWindowResize();
