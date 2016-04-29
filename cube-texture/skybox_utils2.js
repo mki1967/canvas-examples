@@ -6,6 +6,42 @@
 
 /* sbx_ - prefix for objects of this library */
 
+/* general procedures */
+
+var sbx_makeShaderProgramTool= function(gl, vertexShaderSource, fragmentShaderSource){
+    /* Parameters:
+       gl - WebGL context
+    */
+
+    var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, vertexShaderSource);
+    gl.compileShader(vertexShader);
+    if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+	console.log(gl.getShaderInfoLog(vertexShader));
+	return null;
+    }
+
+    var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, fragmentShaderSource);
+    gl.compileShader(fragmentShader);
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+	console.log(gl.getShaderInfoLog(fragmentShader));
+	return null;
+    }
+
+    var shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+	console.log("Could not initialise shaders");
+	return null;
+    }
+    
+    // SUCCESS
+    return shaderProgram;
+};
+
 /* Table of functions with values in [-1 ... 1]^3 -> [-1 ... 1] */
 var sbx_fun= [
     function( x,y,z ) {
@@ -54,13 +90,13 @@ var sbx_fun= [
 ];
 
 
-const CUBE_SIZE= 512;
+const sbx_CUBE_SIZE= 512;
 
 var sbx_srcCubeSize= "const int cubeSize= " + CUBE_SIZE +";\n";
 var sbx_srcPI= "const float PI = " + Math.PI +";\n";
-var sbx_srcFunRPrefix= "float fR(x,y,z){ return";
-var sbx_srcFunGPrefix= "float fG(x,y,z){ return";
-var sbx_srcFunBPrefix= "float fB(x,y,z){ return";
+var sbx_srcFunRPrefix= "float fR(x,y,z){ return ";
+var sbx_srcFunGPrefix= "float fG(x,y,z){ return ";
+var sbx_srcFunBPrefix= "float fB(x,y,z){ return ";
 var sbr_srcFunSuffix= "; }\n";
 
 var sbx_srcFunStrings= [
@@ -77,7 +113,7 @@ var sbx_srcFunStrings= [
     " sin( x * PI * 4 )*cos( z * PI * 4 )"
 ];
 
-var sbx_srcTexMakeVS=""+ // prepend constant definitions fR, fG, fB
+var sbx_renderTextureVS2=""+ // prepend constant definitions fR, fG, fB
     "attribute float h;\n"+
     "uniform float v;\n"+
     "uniform float depth;\n"+
@@ -95,16 +131,59 @@ var sbx_srcTexMakeVS=""+ // prepend constant definitions fR, fG, fB
     "  float y=vxyz[1];\n"+
     "  float z=vxyz[2];\n"+
     "  color= vec4( fR(x,y,z)), fG(x,y,z)), fB(x,y,z), 1.0 );\n"+
-    "  gl_Position = vec4( h/cubeSize, v/cubeSize,0, 0.5 );\n"+ /// w=0.5 for perspective division
+    "  gl_Position = vec4( h/cubeSize, v/cubeSize, 0.0, 0.5 );\n"+ /// w=0.5 for perspective division
+    "  gl_PointSize=1.0;\n" /// test it
     "}\n";
 
-var sbx_srcTexMakeFS=""+
+var sbx_renderTextureFS=""+
     "varying vec4 color;\n"+
     "void main()\n"+
     "{\n"+
     "  gl_Color= color;\n"+
     "}\n";
     
+/* to be created by sbx_makeRenderTextureShaderProgram */
+var sbx_renderTextureVS=null;
+var sbx_renderTextureShaderProgram=null;
+var  sbx_hBuffer=null; // array: [0,1, ..., sbx_CUBE_SIZE-1]
+
+var sbx_makeRenderTextureShaderProgram= function (gl){
+    var fun=sbx_srcFunStrings;
+    var r=Math.floor( Math.random()* fun.length );
+    var g=Math.floor( Math.random()* fun.length );
+    var b=Math.floor( Math.random()* fun.length );
+
+    var sbx_srcFunR = sbx_srcFunRPrefix + sbx_srcFunStrings[r]+sbr_srcFunSuffix;
+    var sbx_srcFunG = sbx_srcFunGPrefix + sbx_srcFunStrings[g]+sbr_srcFunSuffix;
+    var sbx_srcFunB = sbx_srcFunRPrefix + sbx_srcFunStrings[b]+sbr_srcFunSuffix;
+
+    sbx_renderTextureVS= 
+	sbx_srcCubeSize + 
+	sbx_srcPI +
+	sbx_srcFunR +
+	sbx_srcFunG +
+	sbx_srcFunB +
+	sbx_renderTextureVS2;
+
+    sbx_renderTextureShaderProgram=  sbx_makeShaderProgramTool(gl, sbx_renderTextureVS , sbx_renderTextureFS )
+    /* set vertex attributes locations */
+    sbx_hLocation=gl.getAttribLocation(sbx_renderTextureShaderProgram, "h");
+
+    /* set uniform variables locations */
+    sbx_vLocation=gl.getUniformLocation(sbx_renderTextureShaderProgram, "v");
+    sbx_depthLocation=gl.getUniformLocation(sbx_renderTextureShaderProgram, "depth");
+    sbx_xyzLocation=gl.getUniformLocation(sbx_renderTextureShaderProgram, "xyz");
+
+    /* load buffer data */
+    sbx_hBuffer= gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, sbx_hBuffer );
+
+    var hIn=[];
+    for(var i=0; i< sbx_CUBE_SIZE; i++) hIn.push[i];
+    gl.bufferData(gl.ARRAY_BUFFER, new float32Array( hIn ) , gl.STATIC_DRAW );
+
+
+};
 
 var sbx_shiftAndScale= function( value ){
     /* transform range [-1..1] to [0..255] */
@@ -171,10 +250,6 @@ var sbx_xyzZMinus = [3,1,5];
 
 var sbx_xyzXPlus  = [2,1,3];
 var sbx_xyzXMinus = [5,1,0];
-/*
-  var sbx_xyzYPlus  = [0,2,4];
-  var sbx_xyzYMinus = [0,5,1];
-*/
 
 var sbx_xyzYMinus  = [0,2,4];
 var sbx_xyzYPlus = [0,5,1];
@@ -296,36 +371,14 @@ var sbx_arrayBuffer=null;
 var sbx_textureId=null;
 var sbx_textureUnit=0; // default
 
+
 var sbx_makeShaderProgram= function(gl){
     /* Parameters:
        gl - WebGL context
     */
 
-    sbx_vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(sbx_vertexShader, sbx_vertexShaderSource);
-    gl.compileShader(sbx_vertexShader);
-    if (!gl.getShaderParameter(sbx_vertexShader, gl.COMPILE_STATUS)) {
-	console.log(gl.getShaderInfoLog(sbx_vertexShader));
-	return null;
-    }
 
-    sbx_fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(sbx_fragmentShader, sbx_fragmentShaderSource);
-    gl.compileShader(sbx_fragmentShader);
-    if (!gl.getShaderParameter(sbx_fragmentShader, gl.COMPILE_STATUS)) {
-	console.log(gl.getShaderInfoLog(sbx_fragmentShader));
-	return null;
-    }
-
-    sbx_shaderProgram = gl.createProgram();
-    gl.attachShader(sbx_shaderProgram, sbx_vertexShader);
-    gl.attachShader(sbx_shaderProgram, sbx_fragmentShader);
-    gl.linkProgram(sbx_shaderProgram);
-    if (!gl.getProgramParameter(sbx_shaderProgram, gl.LINK_STATUS)) {
-	console.log("Could not initialise shaders");
-	return null;
-    }
-    
+    sbx_shaderProgram= sbx_makeShaderProgramTool(gl,  sbx_vertexShaderSource,  sbx_fragmentShaderSource);
     gl.useProgram(sbx_shaderProgram);
 
     /* set vertex attributes locations */
@@ -394,3 +447,5 @@ var sbx_drawSkybox= function ( gl, view, projection ) {
     gl.drawArrays(gl.TRIANGLES, 0, 36);
     gl.depthFunc(gl.LESS);
 }
+
+
