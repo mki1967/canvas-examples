@@ -92,7 +92,7 @@ var sbx_fun= [
 
 const sbx_CUBE_SIZE= 512;
 
-var sbx_srcCubeSize= "const int cubeSize= " + CUBE_SIZE +";\n";
+var sbx_srcCubeSize= "const int cubeSize= " + sbx_CUBE_SIZE +";\n";
 var sbx_srcPI= "const float PI = " + Math.PI +";\n";
 var sbx_srcFunRPrefix= "float fR(x,y,z){ return ";
 var sbx_srcFunGPrefix= "float fG(x,y,z){ return ";
