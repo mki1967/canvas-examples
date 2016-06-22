@@ -42,110 +42,64 @@ var sbx_makeShaderProgramTool= function(gl, vertexShaderSource, fragmentShaderSo
     return shaderProgram;
 };
 
-/* Table of functions with values in [-1 ... 1]^3 -> [-1 ... 1] */
-var sbx_fun= [
-    function( x,y,z ) {
-	return x;
-    },
-
-    function( x,y,z ) {
-	return y;
-    },
-
-    function( x,y,z ) {
-	return z;
-    },
-
-    function( x,y,z ) {
-	return Math.sin( x * Math.PI * 4 );
-    },
-
-    function( x,y,z ) {
-	return Math.sin( z * Math.PI * 4 );
-    },
-
-    function( x,y,z ) {
-	return Math.sin( y * Math.PI * 4 );
-    },
-
-    function( x,y,z ) {
-	return Math.cos( x * Math.PI * 4 );
-    },
-
-    function( x,y,z ) {
-	return Math.cos( z * Math.PI * 4 );
-    },
-
-    function( x,y,z ) {
-	return Math.cos( y * Math.PI * 4 );
-    },
-
-    function( x,y,z ) {
-	return Math.sin( x * Math.PI * 4 )*Math.cos( y * Math.PI * 4 );
-    },
-
-    function( x,y,z ) {
-	return Math.sin( x * Math.PI * 4 )*Math.cos( z * Math.PI * 4 );
-    }
-];
 
 
-const sbx_CUBE_SIZE= 512;
+const sbx_CUBE_SIZE= 1024;
 
 var sbx_srcCubeSize= "const int cubeSize= " + sbx_CUBE_SIZE +";\n";
 var sbx_srcPI= "const float PI = " + Math.PI +";\n";
-var sbx_srcFunRPrefix= "float fR(x,y,z){ return ";
-var sbx_srcFunGPrefix= "float fG(x,y,z){ return ";
-var sbx_srcFunBPrefix= "float fB(x,y,z){ return ";
+var sbx_srcFunRPrefix= "float fR(float x,float y,float z){ return ";
+var sbx_srcFunGPrefix= "float fG(float x,float y,float z){ return ";
+var sbx_srcFunBPrefix= "float fB(float x,float y,float z){ return ";
 var sbr_srcFunSuffix= "; }\n";
 
 var sbx_srcFunStrings= [
     " x",
     " y",
     " z",
-    " sin( x * PI * 4 )",
-    " sin( z * PI * 4 )",
-    " sin( y * PI * 4 )",
-    " cos( x * PI * 4 )",
-    " cos( z * PI * 4 )",
-    " cos( y * PI * 4 )",
-    " sin( x * PI * 4 )*cos( y * PI * 4 )",
-    " sin( x * PI * 4 )*cos( z * PI * 4 )"
+    " sin( x * PI * 4.0 )",
+    " sin( z * PI * 4.0 )",
+    " sin( y * PI * 4.0 )",
+    " cos( x * PI * 4.0 )",
+    " cos( z * PI * 4.0 )",
+    " cos( y * PI * 4.0 )",
+    " sin( x * PI * 4.0 )*cos( y * PI * 4.0 )",
+    " sin( x * PI * 4.0 )*cos( z * PI * 4.0 )"
 ];
 
 var sbx_renderTextureVS2=""+ // prepend constant definitions fR, fG, fB
     "attribute float h;\n"+
     "uniform float v;\n"+
-    "uniform float depth;\n"+
-    "uniform int xyz[3];\n"+
+    "const float depth=0.5;\n"+
+    "uniform mat3 xyz;\n"+
     "varying vec4 color;\n"+
     "void main()\n"+
     "{\n"+
     "  float  args[6];\n"+
-    "  h=h-cubeSize/2";
-    "  v=v-cubeSize/2";
-    "  args[0]=h; args[1]=v; args[2]=depth;\n"+
-    "  args[0]=h; args[1]=v; args[2]=depth;\n"+
-    "  vec3 vxyz=normalized(vec3( args[xyz[0]], args[xyz[1]], args[xyz[2]] ) );\n"+
-    "  float x=vxyz[0];\n"+
-    "  float y=vxyz[1];\n"+
-    "  float z=vxyz[2];\n"+
-    "  color= vec4( fR(x,y,z)), fG(x,y,z)), fB(x,y,z), 1.0 );\n"+
-    "  gl_Position = vec4( h/cubeSize, v/cubeSize, 0.0, 0.5 );\n"+ /// w=0.5 for perspective division
-    "  gl_PointSize=1.0;\n" /// test it
+    "  float h=h-float(cubeSize)/2.0;\n"+
+    "  float v=v-float(cubeSize)/2.0;\n"+
+    "  vec3 hvd= vec3(h,v,depth);\n"+
+    "  vec3 vxyz=normalize(xyz*hvd);\n"+
+    "  float x=vxyz.x;\n"+
+    "  float y=vxyz.y;\n"+
+    "  float z=vxyz.z;\n"+
+    "  color= vec4( fR(x,y,z), fG(x,y,z), fB(x,y,z), 1.0 );\n"+
+    "  gl_Position = vec4( h/float(cubeSize), v/float(cubeSize), 0.0, 0.5 );\n"+ /// w=0.5 for perspective division
+    "  gl_PointSize=1.0;\n"+ /// test it
     "}\n";
 
 var sbx_renderTextureFS=""+
+    "precision mediump float;\n"+
     "varying vec4 color;\n"+
     "void main()\n"+
     "{\n"+
-    "  gl_Color= color;\n"+
+    "  gl_FragColor= color;\n"+
     "}\n";
     
 /* to be created by sbx_makeRenderTextureShaderProgram */
 var sbx_renderTextureVS=null;
 var sbx_renderTextureShaderProgram=null;
-var  sbx_hBuffer=null; // array: [0,1, ..., sbx_CUBE_SIZE-1]
+var  sbx_hBufferId=null; // array: [0,1, ..., sbx_CUBE_SIZE-1]
 
 var sbx_makeRenderTextureShaderProgram= function (gl){
     var fun=sbx_srcFunStrings;
@@ -155,7 +109,7 @@ var sbx_makeRenderTextureShaderProgram= function (gl){
 
     var sbx_srcFunR = sbx_srcFunRPrefix + sbx_srcFunStrings[r]+sbr_srcFunSuffix;
     var sbx_srcFunG = sbx_srcFunGPrefix + sbx_srcFunStrings[g]+sbr_srcFunSuffix;
-    var sbx_srcFunB = sbx_srcFunRPrefix + sbx_srcFunStrings[b]+sbr_srcFunSuffix;
+    var sbx_srcFunB = sbx_srcFunBPrefix + sbx_srcFunStrings[b]+sbr_srcFunSuffix;
 
     sbx_renderTextureVS= 
 	sbx_srcCubeSize + 
@@ -165,122 +119,141 @@ var sbx_makeRenderTextureShaderProgram= function (gl){
 	sbx_srcFunB +
 	sbx_renderTextureVS2;
 
+    console.log(sbx_renderTextureVS);
+
+    if( sbx_renderTextureShaderProgram ) gl.deleteProgram( sbx_renderTextureShaderProgram );
+
     sbx_renderTextureShaderProgram=  sbx_makeShaderProgramTool(gl, sbx_renderTextureVS , sbx_renderTextureFS )
     /* set vertex attributes locations */
     sbx_hLocation=gl.getAttribLocation(sbx_renderTextureShaderProgram, "h");
 
     /* set uniform variables locations */
     sbx_vLocation=gl.getUniformLocation(sbx_renderTextureShaderProgram, "v");
-    sbx_depthLocation=gl.getUniformLocation(sbx_renderTextureShaderProgram, "depth");
     sbx_xyzLocation=gl.getUniformLocation(sbx_renderTextureShaderProgram, "xyz");
 
     /* load buffer data */
-    sbx_hBuffer= gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, sbx_hBuffer );
+    if( sbx_hBufferId=== null) {
+	sbx_hBufferId= gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, sbx_hBufferId );
 
-    var hIn=[];
-    for(var i=0; i< sbx_CUBE_SIZE; i++) hIn.push[i];
-    gl.bufferData(gl.ARRAY_BUFFER, new float32Array( hIn ) , gl.STATIC_DRAW );
-
-
-};
-
-var sbx_shiftAndScale= function( value ){
-    /* transform range [-1..1] to [0..255] */
-    value+=1;
-    value*= 255/2;
-    return Math.round(value);
-}
-
-
-
-var sbx_vectorScale = function(v, sx, sy, sz ) {
-    v[0]*= sx;
-    v[1]*= sy;
-    v[2]*= sz;
-};
-
-/* some algebra ... */
-
-var sbx_scalarProduct= function( v, w ) {
-    return v[0]*w[0]+v[1]*w[1]+v[2]*w[2];
-};
-
-var sbx_vectorLength = function (a) {
-    return Math.sqrt(sbx_scalarProduct(a,a));
-};
-
-var sbx_vectorNormalized = function (v) {
-    var len= sbx_vectorLength(v);
-    if(len === 0.0) return [0,0,0]; // normalized zero vector :-(
-    var vn= [v[0], v[1], v[2]] ; //  clone of vector v
-    var s =1/len;
-    sbx_vectorScale(vn,  s,s,s);
-    return vn;
-};
-
-
-
-
-
-/* screen operations */
-var sbx_putPixel= function(ctx, x,y, rgb){
-    ctx.fillStyle = "rgb("+rgb[0]+","+rgb[1]+","+rgb[2]+")";
-    ctx.fillRect(x,y,1,1);
-}
-
-
-var sbx_createFunctionRGB= function(fR,fG,fB, xyz) {
-    /* returns function used in fillCanvas */
-    /* xyz is used for selection and inversion of arguments x,y,z from [h, v, depth, -h,-v, -depth] */
-    var t=sbx_shiftAndScale;
-    return function(h,v,depth){
-	var args=[h,v,depth, -h,-v,-depth];
-	var vxyz=sbx_vectorNormalized([ args[xyz[0]], args[xyz[1]], args[xyz[2]] ]);
-	var x=vxyz[0];
-	var y=vxyz[1];
-	var z=vxyz[2];
-
-	return [t(fR(x,y,z)), t(fG(x,y,z)), t(fB(x,y,z))];
+	var hIn=[];
+	for(var i=0; i< sbx_CUBE_SIZE; i++) hIn.push[i];
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array( hIn ) , gl.STATIC_DRAW );
     }
-}
 
-var sbx_xyzZPlus  = [0,1,2];
-var sbx_xyzZMinus = [3,1,5];
+};
 
-var sbx_xyzXPlus  = [2,1,3];
-var sbx_xyzXMinus = [5,1,0];
 
-var sbx_xyzYMinus  = [0,2,4];
-var sbx_xyzYPlus = [0,5,1];
+/* texture parameters */
+var sbx_textureId=null;
+var sbx_textureUnit=0; // default
+// var sbx_textureSize=1024; 
+var sbx_frameBufferId=null;
 
-var sbx_fillCanvas= function(canvas, fRGB){
-    /* fRGB - function of (h,v,depth) - returns vector [r,g,b] in [0 ... 255]^3 */
+
+/* arguments permutations */
+var sbx_xyzXPlus    = [ 0, 0,-1,
+			0, 1, 0,
+			1, 0, 0];  //[z,y,-x];
+var sbx_xyzXMinus   = [ 0, 0, 1,
+			0, 1, 0,
+		       -1, 0, 0];  //[-z,y,x];
+
+var sbx_xyzYPlus    =   [ 1, 0, 0, 
+			  0, 0, 1,
+			  0,-1, 0]; //[x,-z,y];
+
+var sbx_xyzYMinus  = [ 1, 0, 0,
+		       0, 0,-1,
+		       0, 1, 0]; //[x,z,-y];
+
+var sbx_xyzZPlus  = [1, 0, 0,
+		     0, 1, 0,
+		     0, 0, 1];  // [x,y,z];
+var sbx_xyzZMinus = [-1, 0, 0,
+                      0, 1, 0,
+		      0, 0,-1]; // [-x,y,-z];
+
+
+
+var sbx_xyzArray=[ 
+    sbx_xyzXPlus,
+    sbx_xyzXMinus,
+    sbx_xyzYPlus,
+    sbx_xyzYMinus,
+    sbx_xyzZPlus,
+    sbx_xyzZMinus
+];
+
+
+
+
+/* rendering random skybox in a frame */
+var sbx_renderRandomCube=function(gl){
+    var i,j;
+    var defaultFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+    if(sbx_textureId===null) {
+	/* create texture object and allocate image memories */
+	sbx_textureId=gl.createTexture();
+	gl.activeTexture(gl.TEXTURE0+sbx_textureUnit);
+	gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
+	for(i=0; i<6; i++)
+	    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X+i , 0, gl.RGBA, sbx_CUBE_SIZE, sbx_CUBE_SIZE, 0 /* border */,
+			  gl.RGBA, gl.UNSIGNED_BYTE, null);   
+    }
     
-    var ctx=canvas.getContext("2d");
-    var maxHorizontal= canvas.width/2;
-    var maxVertical  = canvas.height/2;
-    var depth= canvas.width/2;
-    var h,v,x,y,z;
-    for(h = -maxHorizontal, ph=0; h < maxHorizontal; h++,ph++)
-	for(v = -maxVertical,pv= canvas.height; v < maxVertical; v++,pv-- ) {
-	    sbx_putPixel(ctx, ph,pv, fRGB(h,v,depth));
-	}
+    if(sbx_frameBufferId===null) {
+	/* create framebuffer object */
+	sbx_frameBufferId=gl.createFramebuffer();
+    }
+    if(sbx_renderTextureShaderProgram != null) 
+	gl.deleteProgram(sbx_renderTextureShaderProgram);
+    sbx_makeRenderTextureShaderProgram(gl);
+    gl.useProgram(sbx_renderTextureShaderProgram);
+
+    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, sbx_frameBufferId);
+    gl.viewport(0,0,sbx_CUBE_SIZE,sbx_CUBE_SIZE);
+
+    var renderbuffer = gl.createRenderbuffer();
+    gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, sbx_CUBE_SIZE , sbx_CUBE_SIZE );
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
+
+
+    for(i=0; i<6; i++){
+	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X+i,sbx_textureId, 0);
+	console.log(gl.checkFramebufferStatus(gl.FRAMEBUFFER)); // test
+	console.log(gl); // test
+
+	gl.uniformMatrix3fv(sbx_xyzLocation, gl.FALSE,  sbx_xyzArray[i] );
+	gl.enableVertexAttribArray(sbx_hLocation);
+	gl.bindBuffer(gl.ARRAY_BUFFER, sbx_hBufferId);
+	gl.vertexAttribPointer( sbx_hLocation, 1, gl.FLOAT, false, 0, 0);
+	for( j=0; j<sbx_CUBE_SIZE; j++) {
+	    gl.uniform1f(sbx_vLocation, j);
+	    gl.drawArrays(gl.POINTS, 0, sbx_CUBE_SIZE);
+ 	}
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, defaultFBO); // return to default screen FBO
 }
 
-var sbx_fillCanvasUpsideDown= function(canvas, fRGB){
-    /* fRGB - function of (h,v,depth) - returns vector [r,g,b] in [0 ... 255]^3 */
-    
-    var ctx=canvas.getContext("2d");
-    var maxHorizontal= canvas.width/2;
-    var maxVertical  = canvas.height/2;
-    var depth= canvas.width/2;
-    var h,v,x,y,z;
-    for(h = -maxHorizontal, ph=0; h < maxHorizontal; h++,ph++)
-	for(v = -maxVertical,pv=0; v < maxVertical; v++,pv++ ) {
-	    sbx_putPixel(ctx, ph,pv, fRGB(h,v,depth));
-	}
-}
+
+///// older ... ///
+
+var sbx_loadCubeFaceFromCanvas= function(gl, canvas, cubeFace){
+    /* use after  sbx_makeShaderProgram(gl) */
+    /* Parameters:
+       gl - WebGL context
+       canvas - container of the image
+       cubeFace - one of: gl.TEXTURE_CUBE_MAP_POSITIVE_X, ...
+    */
+    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit);
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
+    gl.texImage2D( cubeFace, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
+};
 
 
 /* shaders - see: http://learnopengl.com/#!Advanced-OpenGL/Cubemaps */
@@ -367,10 +340,6 @@ var sbx_Float32Array= new Float32Array( [
 
 var sbx_arrayBuffer=null;
 
-/* texture parameters */
-var sbx_textureId=null;
-var sbx_textureUnit=0; // default
-
 
 var sbx_makeShaderProgram= function(gl){
     /* Parameters:
@@ -406,18 +375,6 @@ var sbx_makeShaderProgram= function(gl){
 
     // SUCCESS
     return sbx_shaderProgram;
-};
-
-var sbx_loadCubeFaceFromCanvas= function(gl, canvas, cubeFace){
-    /* use after  sbx_makeShaderProgram(gl) */
-    /* Parameters:
-       gl - WebGL context
-       canvas - container of the image
-       cubeFace - one of: gl.TEXTURE_CUBE_MAP_POSITIVE_X, ...
-    */
-    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit);
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
-    gl.texImage2D( cubeFace, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
 };
 
 

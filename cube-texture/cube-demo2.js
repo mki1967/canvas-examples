@@ -373,7 +373,7 @@ var redraw=function(){
     gl.clearColor(0, 0, 0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-
+/*
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
 			   xPlusArrayBuffer,  boxFaceTextures[0] , 1 ) 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
@@ -388,7 +388,7 @@ var redraw=function(){
 			   zPlusArrayBuffer,  boxFaceTextures[4] , 5 ) 
     drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
 			   zMinusArrayBuffer,  boxFaceTextures[5] , 6 ) 
-
+*/
     sbx_drawSkybox ( gl, 
 		     rotationMatrix,
 		     projectionMatrix
@@ -471,7 +471,6 @@ function onKeyDown(e){
 window.onload= function(){
     html={};
     html.canvasGL=document.querySelector('#canvasGL');
-    html.canvasTex=document.querySelector('#canvasTex');
     gl = canvasGL.getContext("webgl");
 
 
@@ -496,7 +495,9 @@ window.onload= function(){
 
     makeShaderProgram(gl);
     sbx_makeShaderProgram(gl);
-	    
+    // sbx_makeRenderTextureShaderProgram(gl);
+    sbx_renderRandomCube(gl);
+/*	    
     var fun=sbx_fun;
     var r=Math.floor( Math.random()* fun.length );
     var g=Math.floor( Math.random()* fun.length );
@@ -507,7 +508,7 @@ window.onload= function(){
 	boxFaceTextures.push( createTexture2D(gl) );
 	loadTexture2DFromCanvas(gl, canvasTex, boxFaceTextures[boxFaceTextures.length-1]);
     }
-
+*/
     onWindowResize();
     window.onresize= onWindowResize;
     window.onkeydown= onKeyDown;
