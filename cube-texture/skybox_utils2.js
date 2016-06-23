@@ -44,7 +44,7 @@ var sbx_makeShaderProgramTool= function(gl, vertexShaderSource, fragmentShaderSo
 
 
 
-const sbx_CUBE_SIZE= 1024;
+const sbx_CUBE_SIZE= 512;
 
 var sbx_srcCubeSize= "const int cubeSize= " + sbx_CUBE_SIZE +";\n";
 var sbx_srcPI= "const float PI = " + Math.PI +";\n";
@@ -137,7 +137,7 @@ var sbx_makeRenderTextureShaderProgram= function (gl){
 	gl.bindBuffer(gl.ARRAY_BUFFER, sbx_hBufferId );
 
 	var hIn=[];
-	for(var i=0; i< sbx_CUBE_SIZE; i++) hIn.push[i];
+	for(var i=0; i< sbx_CUBE_SIZE; i++) hIn.push(i);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array( hIn ) , gl.STATIC_DRAW );
     }
 
@@ -197,6 +197,10 @@ var sbx_renderRandomCube=function(gl){
 	sbx_textureId=gl.createTexture();
 	gl.activeTexture(gl.TEXTURE0+sbx_textureUnit);
 	gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	for(i=0; i<6; i++)
 	    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X+i , 0, gl.RGBA, sbx_CUBE_SIZE, sbx_CUBE_SIZE, 0 /* border */,
 			  gl.RGBA, gl.UNSIGNED_BYTE, null);   
@@ -217,11 +221,12 @@ var sbx_renderRandomCube=function(gl){
     gl.bindFramebuffer(gl.FRAMEBUFFER, sbx_frameBufferId);
     gl.viewport(0,0,sbx_CUBE_SIZE,sbx_CUBE_SIZE);
 
+/*
     var renderbuffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
     gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, sbx_CUBE_SIZE , sbx_CUBE_SIZE );
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
-
+*/
 
     for(i=0; i<6; i++){
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X+i,sbx_textureId, 0);
@@ -231,9 +236,9 @@ var sbx_renderRandomCube=function(gl){
 	gl.uniformMatrix3fv(sbx_xyzLocation, gl.FALSE,  sbx_xyzArray[i] );
 	gl.enableVertexAttribArray(sbx_hLocation);
 	gl.bindBuffer(gl.ARRAY_BUFFER, sbx_hBufferId);
-	gl.vertexAttribPointer( sbx_hLocation, 1, gl.FLOAT, false, 0, 0);
 	for( j=0; j<sbx_CUBE_SIZE; j++) {
 	    gl.uniform1f(sbx_vLocation, j);
+	    gl.vertexAttribPointer( sbx_hLocation, 1, gl.FLOAT, false, 0, 0);
 	    gl.drawArrays(gl.POINTS, 0, sbx_CUBE_SIZE);
  	}
     }
@@ -364,6 +369,7 @@ var sbx_makeShaderProgram= function(gl){
     gl.bufferData(gl.ARRAY_BUFFER, sbx_Float32Array , gl.STATIC_DRAW );
 
     /* create texture ID and set texture parameters */
+/* not now ...
     sbx_textureId=gl.createTexture();
     gl.activeTexture(gl.TEXTURE0+sbx_textureUnit);
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
@@ -372,7 +378,7 @@ var sbx_makeShaderProgram= function(gl){
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     // gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
-
+*/
     // SUCCESS
     return sbx_shaderProgram;
 };
@@ -397,6 +403,7 @@ var sbx_drawSkybox= function ( gl, view, projection ) {
     gl.vertexAttribPointer(sbx_position, 3, gl.FLOAT, false, 0, 0);
 
     gl.activeTexture(gl.TEXTURE0+sbx_textureUnit );
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
     gl.uniform1i(sbx_skybox, sbx_textureUnit );
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
 
