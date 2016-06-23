@@ -57,6 +57,14 @@ var sbx_srcFunStrings= [
     " x",
     " y",
     " z",
+    " sin( x * PI * 2.0 )",
+    " sin( z * PI * 2.0 )",
+    " sin( y * PI * 2.0 )",
+    " cos( x * PI * 2.0 )",
+    " cos( z * PI * 2.0 )",
+    " cos( y * PI * 2.0 )",
+    " sin( x * PI * 2.0 )*cos( y * PI * 2.0 )",
+    " sin( x * PI * 2.0 )*cos( z * PI * 2.0 )",
     " sin( x * PI * 4.0 )",
     " sin( z * PI * 4.0 )",
     " sin( y * PI * 4.0 )",
@@ -84,7 +92,7 @@ var sbx_renderTextureVS2=""+ // prepend constant definitions fR, fG, fB
     "  float x=vxyz.x;\n"+
     "  float y=vxyz.y;\n"+
     "  float z=vxyz.z;\n"+
-    "  color= vec4( fR(x,y,z), fG(x,y,z), fB(x,y,z), 1.0 );\n"+
+    "  color= 0.5*vec4( fR(x,y,z), fG(x,y,z), fB(x,y,z), 1.0 )+vec4(0.5,0.5,0.5,0.5);\n"+
     "  gl_Position = vec4( h/float(cubeSize), v/float(cubeSize), 0.0, 0.5 );\n"+ /// w=0.5 for perspective division
     "  gl_PointSize=1.0;\n"+ /// test it
     "}\n";
