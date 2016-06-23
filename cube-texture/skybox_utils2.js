@@ -44,7 +44,7 @@ var sbx_makeShaderProgramTool= function(gl, vertexShaderSource, fragmentShaderSo
 
 
 
-const sbx_CUBE_SIZE= 512;
+const sbx_CUBE_SIZE= 1024;
 
 var sbx_srcCubeSize= "const int cubeSize= " + sbx_CUBE_SIZE +";\n";
 var sbx_srcPI= "const float PI = " + Math.PI +";\n";
@@ -70,7 +70,7 @@ var sbx_srcFunStrings= [
 var sbx_renderTextureVS2=""+ // prepend constant definitions fR, fG, fB
     "attribute float h;\n"+
     "uniform float v;\n"+
-    "const float depth=0.5;\n"+
+    "const float depth=1.0;\n"+
     "uniform mat3 xyz;\n"+
     "varying vec4 color;\n"+
     "void main()\n"+
@@ -78,7 +78,8 @@ var sbx_renderTextureVS2=""+ // prepend constant definitions fR, fG, fB
     "  float  args[6];\n"+
     "  float h=h-float(cubeSize)/2.0;\n"+
     "  float v=v-float(cubeSize)/2.0;\n"+
-    "  vec3 hvd= vec3(h,v,depth);\n"+
+    "  float d=depth*float(cubeSize)-float(cubeSize)/2.0;\n"+
+    "  vec3 hvd= vec3(h,v,d);\n"+
     "  vec3 vxyz=normalize(xyz*hvd);\n"+
     "  float x=vxyz.x;\n"+
     "  float y=vxyz.y;\n"+
@@ -137,7 +138,7 @@ var sbx_makeRenderTextureShaderProgram= function (gl){
 	gl.bindBuffer(gl.ARRAY_BUFFER, sbx_hBufferId );
 
 	var hIn=[];
-	for(var i=0; i< sbx_CUBE_SIZE; i++) hIn.push(i);
+	for(var i=0; i< sbx_CUBE_SIZE+4; i++) hIn.push(i-2);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array( hIn ) , gl.STATIC_DRAW );
     }
 
@@ -236,10 +237,10 @@ var sbx_renderRandomCube=function(gl){
 	gl.uniformMatrix3fv(sbx_xyzLocation, gl.FALSE,  sbx_xyzArray[i] );
 	gl.enableVertexAttribArray(sbx_hLocation);
 	gl.bindBuffer(gl.ARRAY_BUFFER, sbx_hBufferId);
-	for( j=0; j<sbx_CUBE_SIZE; j++) {
-	    gl.uniform1f(sbx_vLocation, j);
+	for( j=0; j<sbx_CUBE_SIZE+4; j++) {
+	    gl.uniform1f(sbx_vLocation, j-2);
 	    gl.vertexAttribPointer( sbx_hLocation, 1, gl.FLOAT, false, 0, 0);
-	    gl.drawArrays(gl.POINTS, 0, sbx_CUBE_SIZE);
+	    gl.drawArrays(gl.POINTS, 0, sbx_CUBE_SIZE+4);
  	}
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, defaultFBO); // return to default screen FBO
