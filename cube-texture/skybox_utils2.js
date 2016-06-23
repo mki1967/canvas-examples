@@ -201,6 +201,9 @@ var sbx_xyzArray=[
 var sbx_renderRandomCube=function(gl){
     var i,j;
     var defaultFBO = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+    var hth= gl.viewportHeight;
+    var wth=  gl.viewportWidth;
+
     if(sbx_textureId===null) {
 	/* create texture object and allocate image memories */
 	sbx_textureId=gl.createTexture();
@@ -230,12 +233,6 @@ var sbx_renderRandomCube=function(gl){
     gl.bindFramebuffer(gl.FRAMEBUFFER, sbx_frameBufferId);
     gl.viewport(0,0,sbx_CUBE_SIZE,sbx_CUBE_SIZE);
 
-/*
-    var renderbuffer = gl.createRenderbuffer();
-    gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, sbx_CUBE_SIZE , sbx_CUBE_SIZE );
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
-*/
 
     for(i=0; i<6; i++){
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X+i,sbx_textureId, 0);
@@ -252,6 +249,10 @@ var sbx_renderRandomCube=function(gl){
  	}
     }
     gl.bindFramebuffer(gl.FRAMEBUFFER, defaultFBO); // return to default screen FBO
+    gl.viewportWidth = wth;
+    gl.viewportHeight = hth;
+    gl.viewport(0,0,wth,hth);
+
 }
 
 
@@ -377,17 +378,6 @@ var sbx_makeShaderProgram= function(gl){
     gl.bindBuffer(gl.ARRAY_BUFFER, sbx_arrayBuffer );
     gl.bufferData(gl.ARRAY_BUFFER, sbx_Float32Array , gl.STATIC_DRAW );
 
-    /* create texture ID and set texture parameters */
-/* not now ...
-    sbx_textureId=gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit);
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    // gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
-*/
     // SUCCESS
     return sbx_shaderProgram;
 };

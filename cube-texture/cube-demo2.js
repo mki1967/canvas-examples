@@ -60,13 +60,6 @@ var zMinusFloat32Array= new Float32Array( [
 	-1, +1, -1,
 ]);
 
-var texCoordsFloat32Array=	new Float32Array([
-    0,  0,
-    0,  1,
-    1,  1,
-    1,  0,
-]);
-
 
 var arrayBuffer=null;
 
@@ -76,8 +69,7 @@ var arrayBuffer=null;
 
 var vertexShaderSource=""+
     "attribute vec3 aPosition;\n"+
-    "attribute vec2 aTexCoords;\n"+
-    "varying vec2 TexCoords;\n"+
+    "varying vec3 TexCoords;\n"+
     "uniform mat4 projection;\n"+
     "uniform mat4 rotation;\n"+
     "uniform vec3 move;\n"+
@@ -85,16 +77,16 @@ var vertexShaderSource=""+
     "{\n"+
     "    vec4 pos = rotation * vec4(aPosition, 1.0) + vec4(move, 0.0);\n"+
     "    gl_Position =  projection * pos;\n"+
-    "    TexCoords = aTexCoords;\n"+
+    "    TexCoords = aPosition ;\n"+
     "}\n";
 
 var fragmentShaderSource=""+
     "precision mediump float;\n"+
-    "varying vec2 TexCoords;\n"+
-    "uniform sampler2D tex2D;\n"+
+    "varying vec3 TexCoords;\n"+
+    "uniform samplerCube skybox;\n"+
     "void main()\n"+
     "{\n"+
-    "    gl_FragColor = texture2D(tex2D, TexCoords);\n"+
+    "    gl_FragColor = textureCube(skybox, TexCoords);\n"+
     "}\n";
 
 var makeShaderProgram= function(gl){
@@ -131,13 +123,14 @@ var makeShaderProgram= function(gl){
 
     /* set vertex attributes locations */
     aPositionLocation=gl.getAttribLocation(shaderProgram, "aPosition");
-    aTexCoordsLocation=gl.getAttribLocation(shaderProgram, "aTexCoords");
+   // aTexCoordsLocation=gl.getAttribLocation(shaderProgram, "aTexCoords");
 
     /* set uniform variables locations */
     projectionLocation=gl.getUniformLocation(shaderProgram, "projection");
     rotationLocation=gl.getUniformLocation(shaderProgram, "rotation");
     moveLocation=gl.getUniformLocation(shaderProgram, "move");
-    tex2DLocation=gl.getUniformLocation(shaderProgram, "tex2D");
+    // tex2DLocation=gl.getUniformLocation(shaderProgram, "tex2D");
+    skyboxLocation=gl.getUniformLocation(shaderProgram, "skybox");
 
     /* load  data buffers */
     zMinusArrayBuffer= gl.createBuffer();
@@ -164,15 +157,12 @@ var makeShaderProgram= function(gl){
     gl.bindBuffer(gl.ARRAY_BUFFER, yPlusArrayBuffer );
     gl.bufferData(gl.ARRAY_BUFFER, yPlusFloat32Array , gl.STATIC_DRAW );
 
-    texCoordsBuffer= gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsBuffer );
-    gl.bufferData(gl.ARRAY_BUFFER, texCoordsFloat32Array , gl.STATIC_DRAW );
 
     // SUCCESS
     return shaderProgram;
 };
 
-var drawBufferFace= function ( gl, rotation, move, projection, buffer, textureId, textureUnit ) {
+var drawBufferFace= function ( gl, rotation, move, projection, buffer) {
     /* Parameters:
        gl - WebGL context
        view, projection - gl matrices 4x4 (column major)
@@ -190,13 +180,10 @@ var drawBufferFace= function ( gl, rotation, move, projection, buffer, textureId
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.vertexAttribPointer(aPositionLocation, 3, gl.FLOAT, false, 0, 0);
 
-    gl.enableVertexAttribArray(aTexCoordsLocation);
-    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordsBuffer);
-    gl.vertexAttribPointer(aTexCoordsLocation, 2, gl.FLOAT, false, 0, 0);
 
-    gl.activeTexture(gl.TEXTURE0+textureUnit );
-    gl.uniform1i(tex2DLocation, textureUnit );
-    gl.bindTexture(gl.TEXTURE_2D, textureId);
+    gl.activeTexture(gl.TEXTURE0+sbx_textureUnit );
+    gl.uniform1i(skyboxLocation, sbx_textureUnit );
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
 
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 }
@@ -373,22 +360,15 @@ var redraw=function(){
     gl.clearColor(0, 0, 0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-/*
-    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   xPlusArrayBuffer,  boxFaceTextures[0] , 1 ) 
-    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   xMinusArrayBuffer,  boxFaceTextures[1] , 2 ) 
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, xPlusArrayBuffer );
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, xMinusArrayBuffer );
 
-    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   yPlusArrayBuffer,  boxFaceTextures[2] , 3 ) 
-    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   yMinusArrayBuffer,  boxFaceTextures[3] , 4 ) 
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, yPlusArrayBuffer );
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, yMinusArrayBuffer );
 
-    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   zPlusArrayBuffer,  boxFaceTextures[4] , 5 ) 
-    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, 
-			   zMinusArrayBuffer,  boxFaceTextures[5] , 6 ) 
-*/
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, zPlusArrayBuffer );
+    drawBufferFace( gl, rotationMatrix, moveVector, projectionMatrix, zMinusArrayBuffer );
+
     sbx_drawSkybox ( gl, 
 		     rotationMatrix,
 		     projectionMatrix
@@ -438,11 +418,14 @@ function onKeyDown(e){
     case 86: // V
 	moveVector[2]--;
 	break;
+    case 78: // N
+	sbx_renderRandomCube(gl);
+	// onWindowResize();
+	break;
     case 32: // space
 	rotationMatrix4= identityMatrix4;
 	break;
 	/*
-	  case 77: // M
 	  case 82: // R
 	  case 81: // Q
 	  case 69: // E
@@ -497,18 +480,6 @@ window.onload= function(){
     sbx_makeShaderProgram(gl);
     // sbx_makeRenderTextureShaderProgram(gl);
     sbx_renderRandomCube(gl);
-/*	    
-    var fun=sbx_fun;
-    var r=Math.floor( Math.random()* fun.length );
-    var g=Math.floor( Math.random()* fun.length );
-    var b=Math.floor( Math.random()* fun.length );
-    for(var skyboxStep=0; skyboxStep<6; skyboxStep++ ){
-	sbx_fillCanvasUpsideDown( canvasTex, sbx_createFunctionRGB( fun[r], fun[g], fun[b], skyboxXYZ[skyboxStep] ) );
-	sbx_loadCubeFaceFromCanvas(gl, canvasTex, cubeFace[skyboxStep]);
-	boxFaceTextures.push( createTexture2D(gl) );
-	loadTexture2DFromCanvas(gl, canvasTex, boxFaceTextures[boxFaceTextures.length-1]);
-    }
-*/
     onWindowResize();
     window.onresize= onWindowResize;
     window.onkeydown= onKeyDown;
