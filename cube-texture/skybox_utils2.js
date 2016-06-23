@@ -76,7 +76,7 @@ var sbx_srcFunStrings= [
 ];
 
 var sbx_renderTextureVS2=""+ // prepend constant definitions fR, fG, fB
-    "attribute float h;\n"+
+"attribute float h;\n"+
     "uniform float v;\n"+
     "const float depth=1.0;\n"+
     "uniform mat3 xyz;\n"+
@@ -104,7 +104,7 @@ var sbx_renderTextureFS=""+
     "{\n"+
     "  gl_FragColor= color;\n"+
     "}\n";
-    
+
 /* to be created by sbx_makeRenderTextureShaderProgram */
 var sbx_renderTextureVS=null;
 var sbx_renderTextureShaderProgram=null;
@@ -166,7 +166,7 @@ var sbx_xyzXPlus    = [ 0, 0,-1,
 			1, 0, 0];  //[z,y,-x];
 var sbx_xyzXMinus   = [ 0, 0, 1,
 			0, 1, 0,
-		       -1, 0, 0];  //[-z,y,x];
+			-1, 0, 0];  //[-z,y,x];
 
 var sbx_xyzYPlus    =   [ 1, 0, 0, 
 			  0, 0, 1,
@@ -180,8 +180,8 @@ var sbx_xyzZPlus  = [1, 0, 0,
 		     0, 1, 0,
 		     0, 0, 1];  // [x,y,z];
 var sbx_xyzZMinus = [-1, 0, 0,
-                      0, 1, 0,
-		      0, 0,-1]; // [-x,y,-z];
+                     0, 1, 0,
+		     0, 0,-1]; // [-x,y,-z];
 
 
 
@@ -209,13 +209,13 @@ var sbx_renderRandomCube=function(gl){
 	sbx_textureId=gl.createTexture();
 	gl.activeTexture(gl.TEXTURE0+sbx_textureUnit);
 	gl.bindTexture(gl.TEXTURE_CUBE_MAP, sbx_textureId);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	for(i=0; i<6; i++)
 	    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X+i , 0, gl.RGBA, sbx_CUBE_SIZE, sbx_CUBE_SIZE, 0 /* border */,
 			  gl.RGBA, gl.UNSIGNED_BYTE, null);   
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     }
     
     if(sbx_frameBufferId===null) {
@@ -248,6 +248,8 @@ var sbx_renderRandomCube=function(gl){
 	    gl.drawArrays(gl.POINTS, 0, sbx_CUBE_SIZE+4);
  	}
     }
+    gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+
     gl.bindFramebuffer(gl.FRAMEBUFFER, defaultFBO); // return to default screen FBO
     gl.viewportWidth = wth;
     gl.viewportHeight = hth;
