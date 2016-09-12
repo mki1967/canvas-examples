@@ -128,7 +128,7 @@ var sbx_makeRenderTextureShaderProgram= function (gl){
 	sbx_srcFunB +
 	sbx_renderTextureVS2;
 
-    console.log(sbx_renderTextureVS);
+    // console.log(sbx_renderTextureVS); // tests
 
     if( sbx_renderTextureShaderProgram ) gl.deleteProgram( sbx_renderTextureShaderProgram );
 
@@ -236,8 +236,8 @@ var sbx_renderRandomCube=function(gl){
 
     for(i=0; i<6; i++){
 	gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_CUBE_MAP_POSITIVE_X+i,sbx_textureId, 0);
-	console.log(gl.checkFramebufferStatus(gl.FRAMEBUFFER)); // test
-	console.log(gl); // test
+	// console.log(gl.checkFramebufferStatus(gl.FRAMEBUFFER)); // test
+	// console.log(gl); // test
 
 	gl.uniformMatrix3fv(sbx_xyzLocation, gl.FALSE,  sbx_xyzArray[i] );
 	gl.enableVertexAttribArray(sbx_hLocation);
