@@ -120,8 +120,8 @@ var BETA = -(Pi/6);
 
 // precision of the graph 
 
-var stepX=0.04;
-var stepY=0.04;
+var stepX=0.02;
+var stepY=0.02;
 
 
 // drawing perspective for one eye
