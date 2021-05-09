@@ -7,7 +7,6 @@ var pixVertexShaderSrc=""+
 
 var pixFragmentShaderSrc=""+
     "precision mediump float;\n"+
-    "uniform sampler2D tex2D;\n"+
     "void main()\n"+
     "{\n"+
     "    float d= floor( mod(gl_FragCoord.x+gl_FragCoord.y, 2.0) );\n"+ // gl_FragCoord - współrzędne piksli na ekranie
@@ -67,8 +66,9 @@ window.onload= function(){
     shaderProgram= makeShaderProgram(gl, pixVertexShaderSrc , pixFragmentShaderSrc )
     aPositionLocation = gl.getAttribLocation(shaderProgram, "aPosition");
 
+    gl.disable(gl.DEPTH_TEST);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 	
     gl.useProgram( shaderProgram );
     gl.enableVertexAttribArray(aPositionLocation);
