@@ -91,7 +91,7 @@ window.onload= function(){
     gl.disable(gl.DEPTH_TEST);
 
     gl.enable(gl.STENCIL_TEST);
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clearColor(0.5, 0.5, 0.5, 1.0);
     gl.clearStencil(0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.STENCIL_BUFFER_BIT );
     
@@ -131,7 +131,7 @@ window.onload= function(){
     gl.disable(gl.DEPTH_TEST);
     
     gl.useProgram( shaderProgram2 );
-    gl.uniform3f(colorLocation2, 0, 1, 1)
+    gl.uniform3f(colorLocation2, 0, 0, 1)
     gl.uniform2f(moveLocation2, -0.25, -0.25, 0)
     gl.enableVertexAttribArray(aPositionLocation2);
     gl.bindBuffer(gl.ARRAY_BUFFER, bufferId2 ); /* refer to the buffer */
