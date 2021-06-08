@@ -88,8 +88,9 @@ window.onload= function(){
     colorLocation2 = gl.getUniformLocation(shaderProgram2, "color")
     moveLocation2 = gl.getUniformLocation(shaderProgram2, "move")
 
-    gl.disable(gl.DEPTH_TEST);
+    // prepare the stencil buffer
 
+    gl.disable(gl.DEPTH_TEST);
     gl.enable(gl.STENCIL_TEST);
     gl.clearColor(0.5, 0.5, 0.5, 1.0);
     gl.clearStencil(0);
@@ -108,14 +109,16 @@ window.onload= function(){
 
 
     /// draw through stencil
-    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.depthFunc(gl.GL_LESS);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     // draw through reference pixels 1
     gl.stencilFunc(gl.EQUAL, 1, 255); 
-   
+
     gl.stencilMask(0); // disable modification of stencil buffer
-    gl.disable(gl.DEPTH_TEST);
-    
+
     gl.useProgram( shaderProgram2 );
     gl.uniform3f(colorLocation2, 1, 0, 0)
     gl.uniform2f(moveLocation2, 0.25, 0.25, 0)
@@ -126,9 +129,8 @@ window.onload= function(){
 
     // draw through reference pixels 0
     gl.stencilFunc(gl.EQUAL, 0, 255); 
-   
+
     gl.stencilMask(0); // disable modification of stencil buffer
-    gl.disable(gl.DEPTH_TEST);
     
     gl.useProgram( shaderProgram2 );
     gl.uniform3f(colorLocation2, 0, 0, 1)
